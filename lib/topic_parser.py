@@ -8,14 +8,20 @@ home = requests.get(BASE_URL + TOPICS_PATH).json()
 topics = home['links']['children']
 
 topics_with_subtopics = []
-for topic in topics:
-    base_path = topic['base_path']
 
-    print("Querying: " + BASE_URL + base_path)
-    topic = requests.get(BASE_URL + base_path).json()
+print("Topic,Subtopic")
+for topic in topics:
+    topic_base_path = topic['base_path']
+
+    topic = requests.get(BASE_URL + topic_base_path).json()
 
     subtopics = topic['links']['children']
-    topic['subtopics'] = subtopics
-    topics_with_subtopics.append(topic)
 
-print(topics_with_subtopics)
+    for subtopic in subtopics:
+        subtopic_base_path = subtopic["base_path"]
+        print(topic_base_path + "," + subtopic_base_path)
+
+'''
+Spreadsheet:
+https://docs.google.com/spreadsheets/d/1PtgivxT7aCrmgogS7yV2nEPlK12hkkTSzKMFwA-_k1I
+'''
