@@ -1,3 +1,8 @@
+'''
+Generate CSV-like output with headers:
+Topic,Subtopic,Total tagged to subtopic
+'''
+
 import requests
 
 def subtopic_slug(subtopic):
@@ -13,7 +18,7 @@ topics = home['links']['children']
 
 topics_with_subtopics = []
 
-print("Topic,Subtopic,Total tagged documents")
+print("Topic,Subtopic,Total tagged to subtopic")
 for topic in topics:
     topic_base_path = topic['base_path']
 
@@ -28,11 +33,3 @@ for topic in topics:
         total_tagged_docs = tagged_docs["total"]
 
         print(topic_base_path + "," + subtopic_base_path + "," + str(total_tagged_docs))
-
-'''
-Spreadsheet:
-https://docs.google.com/spreadsheets/d/1uslE-JDztW696IvcMinhRXS0e2D9zi5cJssRENb9nKE
-
-TODO:
-calculate total documents tagged to a topic
-'''
