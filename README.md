@@ -5,21 +5,31 @@
 ## Entities
 
 Topic
-- URL
-- Slug
+
+- title       = Column(String)
+- base_path   = Column(String)
+- description = Column(String)
+- web_url     = Column(String)
+- api_url     = Column(String)
 - Subtopics
 
 Subtopic
-- URL
-- Slug
+
+- title       = Column(String)
+- base_path   = Column(String)
+- description = Column(String)
+- web_url     = Column(String)
+- api_url     = Column(String)
 - Topic
 - Documents
 
 Document
-- Title
-- Slug
-- URL
-- Subtopics
+
+- title     = Column(String)
+- base_path = Column(String)
+- web_url   = Column(String)
+- api_url   = Column(String)
+- html      = Column(Text)
 
 ## Relationships
 

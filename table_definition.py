@@ -9,12 +9,15 @@ Base = declarative_base()
 class Topic(Base):
     __tablename__ = 'topics'
 
-    id   = Column(Integer, primary_key=True)
-    name = Column(String)
-    slug = Column(String)
+    id          = Column(Integer, primary_key=True)
+    title       = Column(String)
+    base_path   = Column(String)
+    description = Column(String)
+    web_url     = Column(String)
+    api_url     = Column(String)
 
     def __repr__(self):
-        return "<User(name='%s', slug='%s')>" % (self.name, self.slug)
+        return "<User(title='%s', base_path='%s')>" % (self.title, self.base_path)
 
 # create association table (subtopic-documents)
 subtopics_documents = Table('subtopics_documents', Base.metadata,
@@ -25,9 +28,12 @@ subtopics_documents = Table('subtopics_documents', Base.metadata,
 class Subtopic(Base):
     __tablename__ = 'subtopics'
 
-    id   = Column(Integer, primary_key=True)
-    name = Column(String)
-    slug = Column(String)
+    id          = Column(Integer, primary_key=True)
+    title       = Column(String)
+    base_path   = Column(String)
+    description = Column(String)
+    web_url     = Column(String)
+    api_url     = Column(String)
 
     topic_id  = Column(Integer, ForeignKey('topics.id'))
     topic     = relationship("Topic", back_populates="subtopics")
@@ -37,7 +43,7 @@ class Subtopic(Base):
     )
 
     def __repr__(self):
-        return "<User(name='%s', slug='%s')>" % (self.name, self.slug)
+        return "<User(title='%s', base_path='%s')>" % (self.title, self.base_path)
 
 # link topic to subtopics
 Topic.subtopics = relationship(
@@ -47,22 +53,26 @@ Topic.subtopics = relationship(
 class Document(Base):
     __tablename__ = 'documents'
 
-    id   = Column(Integer, primary_key=True)
-    name = Column(String)
-    slug = Column(String)
-    html = Column(Text)
+    id        = Column(Integer, primary_key=True)
+    title     = Column(String)
+    base_path = Column(String)
+    web_url   = Column(String)
+    api_url   = Column(String)
+    html      = Column(Text)
 
     subtopics = relationship(
         'Subtopic', secondary=subtopics_documents, back_populates='documents'
     )
 
-    def __init__(self, name, slug, html):
-        self.name = name
-        self.slug = slug
-        self.html = html
+    def __init__(self, title, base_path, html, web_url=None, api_url=None):
+        self.title     = title
+        self.base_path = base_path
+        self.html      = html
+        self.web_url   = web_url
+        self.api_url   = api_url
 
     def __repr__(self):
-        return "Document(%r, %r, %r)" % (self.name, self.slug, self.html)
+        return "Document(%r, %r, %r)" % (self.title, self.base_path, self.html)
 
 # Create tables in database
 # always delete db when modifying this

@@ -10,9 +10,9 @@ session = Session()
 
 ### Examples:
 # create a topic, subtopic and document
-# test_topic = Topic(name="HMRC", slug="/hmrc")
-# test_subtopic = Subtopic(name="HMRC payments", slug="/payments")
-# test_document = Document(name="Self assessment deadlines", slug="/self-assessment", html="<strong>PAY NOW</strong>")
+# test_topic = Topic(title="HMRC", base_path="/hmrc")
+# test_subtopic = Subtopic(title="HMRC payments", base_path="/payments")
+# test_document = Document(title="Self assessment deadlines", base_path="/self-assessment", html="<strong>PAY NOW</strong>")
 
 # create relationships
 # test_topic.subtopics    = [test_subtopic]
