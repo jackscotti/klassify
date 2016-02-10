@@ -8,23 +8,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from table_definition import Topic, Subtopic
 
-engine = create_engine('sqlite:///klassify.db', echo=True)
-
-# create a Session
-Session = sessionmaker(bind=engine)
-session = Session()
-
-API_URL = "https://www.gov.uk/api/content"
-root = requests.get(API_URL + "/topic").json()
-
-topics = root["links"]["children"]
-
-for topic in topics:
-    "TO COMPLETE"
-    topic_base_path = topic["base_path"]
-    subtopics = requests.get(API_URL + topic_base_path).json()
-    subtopics = subtopics["links"]["children"]
-
 def make_topic_model(topic_data):
     return Topic(
         title=topic_data["title"],
@@ -36,15 +19,50 @@ def make_topic_model(topic_data):
 
 def make_subtopic_model(subtopic_data):
     return Subtopic(
-        title=topic_data["title"],
-        base_path=topic_data["base_path"],
-        web_url=topic_data["web_url"],
-        api_url=topic_data["api_url"],
-        description=topic_data["description"]
+        title=subtopic_data["title"],
+        base_path=subtopic_data["base_path"],
+        web_url=subtopic_data["web_url"],
+        api_url=subtopic_data["api_url"],
+        description=subtopic_data["description"]
     )
 
-def associate_topic_subtopic(topic, subtopic):
-    "TODO"
+def associate_topic_subtopics(topic, subtopics):
+    topic.subtopics = subtopics
+
+################ Script ###########################
+engine = create_engine('sqlite:///klassify.db', echo=True)
+
+# create a Session
+Session = sessionmaker(bind=engine)
+session = Session()
+
+API_URL = "https://www.gov.uk/api/content"
+root = requests.get(API_URL + "/topic").json()
+
+topics_json = root["links"]["children"]
+topics = []
+
+for topic_json in topics_json:
+    topic_base_path = topic_json["base_path"]
+    subtopics_json = requests.get(API_URL + topic_base_path).json()
+    subtopics_json = subtopics_json["links"]["children"]
+
+    topic = make_topic_model(topic_json)
+    print("Created:" + topic_json["base_path"])
+    topics.append(topic)
+
+    subtopics = []
+
+    for subtopic_json in subtopics_json:
+        subtopics.append(make_subtopic_model(subtopic_json))
+        print("Created:" + subtopic_json["base_path"])
+        associate_topic_subtopics(topic, subtopics)
+
+# add to session
+session.add_all(topics)
+session.add_all(subtopics)
+# commit
+session.commit()
 
 ################# TEST - MOVE ONTO SEPARATE FILE ################
 
@@ -85,3 +103,13 @@ def test_make_subtopic_model():
     assert created_subtopic.web_url == expected_subtopic.web_url
     assert created_subtopic.api_url == expected_subtopic.api_url
     assert created_subtopic.description == expected_subtopic.description
+
+def test_associate_topic_subtopics():
+    topic = Topic(title="A topi title")
+    subtopic_1 = Subtopic(title="A subtopic title 1")
+    subtopic_2 = Subtopic(title="A subtopic title 2")
+
+    associate_topic_subtopics(topic, [subtopic_1, subtopic_2])
+
+    assert subtopic_1.title == topic.subtopics[0].title
+    assert subtopic_2.title == topic.subtopics[1].title
