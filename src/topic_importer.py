@@ -1,7 +1,7 @@
 import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from table_definition import Topic, Subtopic
+from klassify.src.table_definition import Topic, Subtopic
 
 class TopicImporter:
     def make_topic_model(self, topic_data):

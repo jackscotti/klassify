@@ -1,5 +1,5 @@
-from topic_importer import TopicImporter
-from table_definition import Topic, Subtopic
+from klassify.src.topic_importer import TopicImporter
+from klassify.src.table_definition import Topic, Subtopic
 
 def importer():
     return TopicImporter()

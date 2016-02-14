@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from table_definition import Topic, Subtopic, Document
+from klassify.src.table_definition import Topic, Subtopic, Document
 import subprocess
 import os
 import pytest
@@ -8,14 +8,15 @@ import sqlalchemy
 
 database_name = "test_klassify"
 
-# Remove test db if present
+# Remove test database if present
 if os.path.exists("%s.db" % database_name):
     os.remove("%s.db" % database_name)
 
-subprocess.call("python3 table_definition.py %s" % database_name, shell=True)
+# Create schema
+subprocess.call("python3 src/table_definition.py %s" % database_name, shell=True)
 engine = create_engine("sqlite:///%s.db" % database_name, echo=True)
 
-# create a Session
+# Create a Session
 Session = sessionmaker(bind=engine)
 session = Session()
 
