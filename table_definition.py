@@ -17,7 +17,7 @@ class Topic(Base):
 
     id          = Column(Integer, primary_key=True)
     title       = Column(String)
-    base_path   = Column(String)
+    base_path   = Column(String, unique=True)
     description = Column(String)
     web_url     = Column(String)
     api_url     = Column(String)
@@ -36,7 +36,7 @@ class Subtopic(Base):
 
     id          = Column(Integer, primary_key=True)
     title       = Column(String)
-    base_path   = Column(String)
+    base_path   = Column(String, unique=True)
     description = Column(String)
     web_url     = Column(String)
     api_url     = Column(String)
@@ -61,7 +61,7 @@ class Document(Base):
 
     id        = Column(Integer, primary_key=True)
     title     = Column(String)
-    base_path = Column(String)
+    base_path = Column(String, unique=True)
     web_url   = Column(String)
     api_url   = Column(String)
     html      = Column(Text)

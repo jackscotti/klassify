@@ -3,8 +3,14 @@ from sqlalchemy.orm import sessionmaker
 from table_definition import Topic, Subtopic, Document
 import subprocess
 import os
+import pytest
+import sqlalchemy
 
 database_name = "test_klassify"
+
+# Remove test db if present
+if os.path.exists("%s.db" % database_name):
+    os.remove("%s.db" % database_name)
 
 subprocess.call("python3 table_definition.py %s" % database_name, shell=True)
 engine = create_engine("sqlite:///%s.db" % database_name, echo=True)
@@ -37,26 +43,42 @@ def test_db():
         test_document_3
     ])
 
+    session.commit()
+
     # Table properties
-    assert session.query(Topic).first().title == test_topic.title
-    assert session.query(Topic).first().base_path == test_topic.base_path
-    assert session.query(Subtopic).first().title == test_subtopic_1.title
-    assert session.query(Subtopic).first().base_path == test_subtopic_1.base_path
-    assert session.query(Document).first().title == test_document_1.title
-    assert session.query(Document).first().base_path == test_document_1.base_path
+    assert session.query(Topic).get(test_topic.id).title == test_topic.title
+    assert session.query(Topic).get(test_topic.id).base_path == test_topic.base_path
+    assert session.query(Subtopic).get(test_subtopic_1.id).title == test_subtopic_1.title
+    assert session.query(Subtopic).get(test_subtopic_1.id).base_path == test_subtopic_1.base_path
+    assert session.query(Document).get(test_document_1.id).title == test_document_1.title
+    assert session.query(Document).get(test_document_1.id).base_path == test_document_1.base_path
 
     # test relationships
-    db_subtopics = session.query(Topic).first().subtopics
-    assert db_subtopics[0].title == test_subtopic_1.title
-    assert db_subtopics[1].title == test_subtopic_2.title
+    topics_and_subtopics = session.query(Topic).get(test_topic.id).subtopics
+    subtopics_titles = [subtopic.title for subtopic in topics_and_subtopics]
+    assert test_subtopic_1.title in subtopics_titles
+    assert test_subtopic_2.title in subtopics_titles
 
-    db_documents = session.query(Subtopic).first().documents
-    assert db_documents[0].title == test_document_1.title
-    assert db_documents[1].title == test_document_2.title
+    subtopics_and_documents = session.query(Subtopic).get(test_subtopic_1.id).documents
+    documents_titles = [document.title for document in subtopics_and_documents]
+    assert test_document_1.title in documents_titles
+    assert test_document_2.title in documents_titles
 
-    last_document_subtopics = session.query(Document).order_by(Document.id.desc()).first().subtopics
-    assert last_document_subtopics[0].title == test_subtopic_1.title
-    assert last_document_subtopics[1].title == test_subtopic_2.title
+    documents_and_subtopics = session.query(Document).get(test_document_3.id).subtopics
+    subtopics_titles = [subtopic.title for subtopic in documents_and_subtopics]
+    assert test_subtopic_1.title in subtopics_titles
+    assert test_subtopic_2.title in subtopics_titles
+
+    # test unique constraint on basepath
+    clone_topic = Topic(title="Clone topic", base_path="/hmrc")
+    clone_subtopic = Subtopic(title="Clone subtopic", base_path="/refunds")
+    clone_document = Document(title="Clone document", base_path="/payments-and-refunds", html="<h1>payments and refunds</h1>")
+    clones = [clone_topic, clone_subtopic, clone_document]
+    for clone in clones:
+        with pytest.raises(sqlalchemy.exc.IntegrityError):
+            session.rollback()
+            session.add_all([clone])
+            session.commit()
 
     # terminate session and delete test db
     session.close()
