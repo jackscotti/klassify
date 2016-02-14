@@ -1,7 +1,7 @@
 import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from klassify.src.table_definition import Topic, Subtopic
+from src.table_definition import Topic, Subtopic
 
 class TopicImporter:
     def make_topic_model(self, topic_data):
@@ -47,16 +47,16 @@ class TopicImporter:
             subtopics_json = requests.get(API_URL + topic_base_path).json()
             subtopics_json = subtopics_json["links"]["children"]
 
-            topic = make_topic_model(topic_json)
+            topic = self.make_topic_model(topic_json)
             print("Created:" + topic_json["base_path"])
             topics.append(topic)
 
             subtopics = []
 
             for subtopic_json in subtopics_json:
-                subtopics.append(make_subtopic_model(subtopic_json))
+                subtopics.append(self.make_subtopic_model(subtopic_json))
                 print("Created:" + subtopic_json["base_path"])
-                associate_topic_subtopics(topic, subtopics)
+                self.associate_topic_subtopics(topic, subtopics)
 
         session.add_all(topics)
         session.add_all(subtopics)
