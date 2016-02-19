@@ -2,16 +2,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from klassify.src.db_handler import DBHandler
 from klassify.src.tables import Topic, Subtopic, Document
-import os
+from klassify.src.base import Base
 import pytest
 import sqlalchemy
-from klassify.src.base import Base
 
 database_name = "test_klassify"
-
-# Remove test database if present
-if os.path.exists("%s.db" % database_name):
-    os.remove("%s.db" % database_name)
 
 DBH = DBHandler(database_name)
 session = DBH.session
@@ -79,4 +74,4 @@ def test_db():
 
     # terminate session and delete test db
     session.close()
-    os.remove("%s.db" % database_name)
+    DBH.destroy_db_if_present()
