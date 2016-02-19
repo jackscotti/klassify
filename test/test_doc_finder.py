@@ -1,12 +1,28 @@
 from klassify.src.table_definition import Subtopic, Document
 import klassify.src.doc_finder as doc_finder
 import json
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from klassify.src.table_definition import Topic, Subtopic, Document
+import subprocess
+import os
+import pytest
+import sqlalchemy
 
 with open('test/fixtures/tagged_documents.json', encoding='utf-8') as fixture_file:
     api_response_fixture = json.loads(fixture_file.read())
 
-def document_data():
-    return api_response_fixture["results"][0]
+DOCUMENT_DATA = api_response_fixture["results"][0]
+SUBTOPICS = [
+    Subtopic(
+        base_path='driving-tests-and-learning-to-drive/car',
+        title='Cars'
+    ),
+    Subtopic(
+        base_path='driving-tests-and-learning-to-drive/lorry-bus',
+        title='Lorries and buses'
+    )
+]
 
 def test_total_documents():
     assert doc_finder.total_documents(api_response_fixture) == 9623
@@ -29,9 +45,15 @@ def test_urls():
     ]
 
 def test_make_document():
-    made_document = doc_finder.make_document(document_data())
+    made_document = doc_finder.make_document(DOCUMENT_DATA)
 
     assert made_document.web_url == 'https://www.gov.uk/view-driving-licence'
     assert made_document.base_path == '/view-driving-licence'
     assert made_document.title == 'View or share your driving licence information'
     assert made_document.description == 'Find out what information DVLA holds about your driving licence or create a check code to share your driving record (eg to hire a car)'
+
+def test_make_document_subtopics_relationship():
+    made_document = doc_finder.make_document(DOCUMENT_DATA)
+    doc_finder.make_document_subtopics_relationship(made_document, SUBTOPICS)
+    assert made_document.subtopics[0] in SUBTOPICS
+    assert made_document.subtopics[1] in SUBTOPICS

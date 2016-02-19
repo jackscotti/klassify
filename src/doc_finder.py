@@ -50,6 +50,12 @@ def make_document(document_data):
     return doc
 
 def make_document_subtopics_relationship(document, subtopics):
+    document.subtopics = subtopics
+    return document
+
+
+def find_topics(topics_data):
+    # this will find topics in the database with the given name/titles/whatever
     return true
 
 if __name__ == "__main__":
