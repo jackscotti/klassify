@@ -1,16 +1,7 @@
-from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy import Table, Column, Integer, String, Text
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
-import sys
-
-if len(sys.argv) > 1:
-    database = "sqlite:///%s.db" % sys.argv[1]
-else:
-    database = "sqlite:///klassify.db"
-
-engine = create_engine(database, echo=True)
-Base = declarative_base()
+from klassify.src.base import Base
 
 class Topic(Base):
     __tablename__ = 'topics'
@@ -81,7 +72,3 @@ class Document(Base):
 
     def __repr__(self):
         return "Document(%r, %r, %r)" % (self.title, self.base_path, self.html)
-
-# Create tables in database
-# always delete db when modifying this
-Base.metadata.create_all(engine)

@@ -1,9 +1,8 @@
-from klassify.src.table_definition import Subtopic, Document
+from klassify.src.tables import Subtopic, Document
 import klassify.src.doc_finder as doc_finder
 import json
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from klassify.src.table_definition import Topic, Subtopic, Document
 import subprocess
 import os
 import pytest

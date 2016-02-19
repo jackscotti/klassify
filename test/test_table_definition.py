@@ -1,10 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from klassify.src.table_definition import Topic, Subtopic, Document
-import subprocess
+from klassify.src.db_handler import DBHandler
+from klassify.src.tables import Topic, Subtopic, Document
 import os
 import pytest
 import sqlalchemy
+from klassify.src.base import Base
 
 database_name = "test_klassify"
 
@@ -12,13 +13,8 @@ database_name = "test_klassify"
 if os.path.exists("%s.db" % database_name):
     os.remove("%s.db" % database_name)
 
-# Create schema
-subprocess.call("python3 src/table_definition.py %s" % database_name, shell=True)
-engine = create_engine("sqlite:///%s.db" % database_name, echo=True)
-
-# Create a Session
-Session = sessionmaker(bind=engine)
-session = Session()
+DBH = DBHandler(database_name)
+session = DBH.session
 
 def test_db():
     # create a topic, subtopic and document

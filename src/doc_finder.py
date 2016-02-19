@@ -4,7 +4,7 @@ import requests
 import math
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from klassify.src.table_definition import Subtopic, Document
+from klassify.src.tables import Subtopic, Document
 ROOT_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING"
 PAGE_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING&count=1000&start="
 
