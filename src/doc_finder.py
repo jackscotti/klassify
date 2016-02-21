@@ -4,72 +4,96 @@ import requests
 import math
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from klassify.src.tables import Subtopic, Document
-from klassify.src.db_handler import DBHandler
+from .tables import Subtopic, Document
+from .db_handler import DBHandler
 
-ROOT_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING"
-PAGE_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING&count=1000&start="
+class DocFinder(object):
 
-def response():
-    response = requests.get(ROOT_URL).json()
+    def __init__(self, db_name="klassify"):
+        self.ROOT_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING"
+        self.PAGE_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING&count=1000&start="
+        self.DBH = DBHandler(db_name)
+        self.session = self.DBH.session
 
-def total_documents(document_data):
-    return document_data["total"]
+    def api_response(self, url):
+        return requests.get(url).json()
 
-def pages(number_of_documents):
-    return math.ceil(number_of_documents / 1000)
+    def total_documents(self, document_data):
+        return document_data["total"]
 
-def urls(number_of_pages):
-    urls = []
-    for i in range(number_of_pages):
-        item_count = i * 1000
-        url_with_pagination = PAGE_URL + str(item_count)
-        urls.append(url_with_pagination)
-    return urls
+    def pages(self, number_of_documents):
+        return math.ceil(number_of_documents / 1000)
 
-def associate_document_with_subtopics(doc, subtopics):
-    doc.subtopics = subtopics
+    def urls(self, number_of_pages):
+        urls = []
+        for i in range(number_of_pages):
+            item_count = i * 1000
+            url_with_pagination = self.PAGE_URL + str(item_count)
+            urls.append(url_with_pagination)
+        return urls
 
+    def associate_document_with_subtopics(self, document, subtopics):
+        # remove duplicates by converting to a set and back to a list
+        subtopics = set(subtopics)
+        subtopics = list(subtopics)
+        document.subtopics = subtopics
 
-def make_document(document_data):
-    link = document_data["link"]
-    title = document_data["title"]
-    description = document_data["description"]
-    doc = Document(
-        web_url="https://www.gov.uk" + link,
-        description=description,
-        base_path=link,
-        title=title
-    )
+        return document
 
-    return doc
+    def make_document(self, document_data):
+        link = document_data["link"]
+        title = document_data["title"]
+        description = document_data["description"]
+        doc = Document(
+            web_url="https://www.gov.uk" + link,
+            description=description,
+            base_path=link,
+            title=title
+        )
 
-def make_document_subtopics_relationship(document, subtopics):
-    document.subtopics = subtopics
-    return document
+        return doc
 
+    def find_subtopics(self, document_data):
+        subtopics_data = document_data["specialist_sectors"]
 
-def find_topics(document_data, db_name='klassify'):
-    DBH = DBHandler(db_name)
-    session = DBH.session
-    subtopics_data = document_data["specialist_sectors"]
-    subtopics = []
+        subtopics = []
+        for subtopic_data in subtopics_data:
+            subtopic = self.session.query(Subtopic).filter_by(base_path=subtopic_data['link']).first()
 
-    for subtopic_data in subtopics_data:
-        subtopics.append(session.query(Subtopic).filter_by(base_path=subtopic_data['link']).first())
+            if subtopic:
+                subtopics.append(subtopic)
+            # find out what to do when a topic is not found in db
+            # maybe create one?
 
-    return subtopics
+        return subtopics
 
-def run():
-    for url in urls():
-        response = requests.get(url).json()
-        results = response["results"]
-        for result in results:
+    def run(self):
+        data_response = self.api_response(self.ROOT_URL)
+        number_of_documents = self.total_documents(data_response)
+        pages = self.pages(number_of_documents)
+        urls = self.urls(pages)
 
-# for each page, create a document with its subtopics and store
-# specialist_sectors: [
-# {
-# title: "Cars",
-# slug: "driving-tests-and-learning-to-drive/car",
-# link: "/topic/driving-tests-and-learning-to-drive/car"
-# }
+        count = 0
+
+        for url in urls:
+            data_response =  self.api_response(url)
+            documents_data = data_response['results']
+            for document_data in documents_data:
+                document = self.make_document(document_data)
+                subtopics = self.find_subtopics(document_data)
+                if subtopics:
+                    self.associate_document_with_subtopics(document, subtopics)
+                # find out what to do when a topic is not found in db
+                # maybe create one?
+
+                try:
+                    self.session.add(document)
+                except:
+                    self.session.rollback()
+                    raise
+                print("Item number: ")
+                print(count)
+                count = count + 1
+
+        self.session.commit()
+        self.session.close()
