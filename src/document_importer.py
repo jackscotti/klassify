@@ -1,5 +1,3 @@
-# TODO: rename file
-
 import requests
 import math
 from sqlalchemy import create_engine
@@ -7,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from .tables import Subtopic, Document
 from .db_handler import DBHandler
 
-class DocFinder(object):
+class DocumentImporter(object):
 
     def __init__(self, db_name="klassify"):
         self.ROOT_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING"
