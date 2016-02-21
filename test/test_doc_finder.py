@@ -1,8 +1,10 @@
 from klassify.src.tables import Subtopic, Document
-import klassify.src.doc_finder as doc_finder
-import json
+from klassify.src.db_handler import DBHandler
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from klassify.src.base import Base
+import klassify.src.doc_finder as doc_finder
+import json
 import subprocess
 import os
 import pytest

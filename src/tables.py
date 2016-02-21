@@ -1,7 +1,7 @@
 from sqlalchemy import Table, Column, Integer, String, Text
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
-from klassify.src.base import Base
+from .base import Base
 
 class Topic(Base):
     __tablename__ = 'topics'

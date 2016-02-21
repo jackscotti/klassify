@@ -1,7 +1,8 @@
 import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from klassify.src.tables import Topic, Subtopic
+from .tables import Topic, Subtopic
+from .db_handler import DBHandler
 
 class TopicImporter:
     def make_topic_model(self, topic_data):
@@ -31,10 +32,8 @@ class TopicImporter:
     # Save all
     def run(self):
         engine = create_engine('sqlite:///klassify.db', echo=True)
-
-        # create a Session
-        Session = sessionmaker(bind=engine)
-        session = Session()
+        DBH = DBHandler()
+        session = DBH.session
 
         API_URL = "https://www.gov.uk/api/content"
         root = requests.get(API_URL + "/topic").json()
@@ -48,14 +47,14 @@ class TopicImporter:
             subtopics_json = subtopics_json["links"]["children"]
 
             topic = self.make_topic_model(topic_json)
-            print("Created:" + topic_json["base_path"])
+            print("Creating topic:" + topic_json["base_path"])
             topics.append(topic)
 
             subtopics = []
 
             for subtopic_json in subtopics_json:
                 subtopics.append(self.make_subtopic_model(subtopic_json))
-                print("Created:" + subtopic_json["base_path"])
+                print("Creating subtopic:" + subtopic_json["base_path"])
                 self.associate_topic_subtopics(topic, subtopics)
 
         session.add_all(topics)

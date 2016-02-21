@@ -1,12 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from klassify.src.base import Base
+from .base import Base
 import os
 
 class DBHandler(object):
     def __init__(self, db_name="klassify"):
         self.db_name = db_name
+        print("creating sqlite:///%s.db" % self.db_name)
         self.db = "sqlite:///%s.db" % self.db_name
         self.engine = create_engine(self.db, echo=True)
         Session = sessionmaker(bind=self.engine)
