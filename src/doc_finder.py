@@ -5,6 +5,8 @@ import math
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from klassify.src.tables import Subtopic, Document
+from klassify.src.db_handler import DBHandler
+
 ROOT_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING"
 PAGE_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING&count=1000&start="
 
@@ -28,18 +30,11 @@ def urls(number_of_pages):
 def associate_document_with_subtopics(doc, subtopics):
     doc.subtopics = subtopics
 
-def run():
-    for url in urls():
-        response = requests.get(url).json()
-        results = response["results"]
-        # for result in results:
-
 
 def make_document(document_data):
     link = document_data["link"]
     title = document_data["title"]
     description = document_data["description"]
-    specialist_sectors = document_data["specialist_sectors"]
     doc = Document(
         web_url="https://www.gov.uk" + link,
         description=description,
@@ -54,13 +49,22 @@ def make_document_subtopics_relationship(document, subtopics):
     return document
 
 
-def find_topics(topics_data):
-    # this will find topics in the database with the given name/titles/whatever
-    return true
+def find_topics(document_data, db_name='klassify'):
+    DBH = DBHandler(db_name)
+    session = DBH.session
+    subtopics_data = document_data["specialist_sectors"]
+    subtopics = []
 
-if __name__ == "__main__":
-    import pdb; pdb.set_trace()
+    for subtopic_data in subtopics_data:
+        subtopics.append(session.query(Subtopic).filter_by(base_path=subtopic_data['link']).first())
 
+    return subtopics
+
+def run():
+    for url in urls():
+        response = requests.get(url).json()
+        results = response["results"]
+        for result in results:
 
 # for each page, create a document with its subtopics and store
 # specialist_sectors: [
