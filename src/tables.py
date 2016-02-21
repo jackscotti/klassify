@@ -14,7 +14,7 @@ class Topic(Base):
     api_url     = Column(String)
 
     def __repr__(self):
-        return "<User(title='%s', base_path='%s')>" % (self.title, self.base_path)
+        return "<Topic(title='%s', base_path='%s')>" % (self.title, self.base_path)
 
 # create association table (subtopic-documents)
 subtopics_documents = Table('subtopics_documents', Base.metadata,
@@ -40,7 +40,7 @@ class Subtopic(Base):
     )
 
     def __repr__(self):
-        return "<User(title='%s', base_path='%s')>" % (self.title, self.base_path)
+        return "<Subtopic(title='%s', base_path='%s')>" % (self.title, self.base_path)
 
 # link topic to subtopics
 Topic.subtopics = relationship(

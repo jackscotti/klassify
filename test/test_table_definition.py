@@ -6,12 +6,11 @@ from klassify.src.base import Base
 import pytest
 import sqlalchemy
 
-database_name = "test_klassify"
-
-DBH = DBHandler(database_name)
-session = DBH.session
-
 def test_db():
+    database_name = "test_klassify"
+
+    DBH = DBHandler(database_name)
+    session = DBH.session
     # create a topic, subtopic and document
     test_topic = Topic(title="HMRC", base_path="/hmrc")
     test_subtopic_1 = Subtopic(title="HMRC payments", base_path="/payments")
