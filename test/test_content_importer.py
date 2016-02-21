@@ -53,4 +53,6 @@ def test_extract_content():
     page_content = IMPORTER.strip_new_lines(page_content)
     assert "\n" not in page_content
 
-    import pdb; pdb.set_trace()
+    page_content = IMPORTER.remove_non_relevant_content(page_content)
+    for phrase in IMPORTER.NON_RELEVANT_PHRASES:
+        assert phrase not in page_content

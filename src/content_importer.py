@@ -9,6 +9,19 @@ class ContentImporter(object):
         self.DBH = DBHandler(db_name)
         self.session = self.DBH.session
         self.ROOT_URL = "https://www.gov.uk"
+        self.NON_RELEVANT_PHRASES = [
+            "Skip to main content",
+            "GOV.UK uses cookies to make the site simpler.",
+            "Find out more about cookies"
+            "GOV.UK uses cookies to make the site simpler",
+            "Is there anything wrong with this page",
+            "Last updated",
+            "Other ways to apply",
+            "Before you start",
+            "Elsewhere on the web",
+            "Find out about call charges",
+            "find out more about beta services",
+        ]
 
     def parse_page(self, page):
         soup = BeautifulSoup(page.text, 'html.parser')
@@ -46,14 +59,7 @@ class ContentImporter(object):
         [s.extract() for s in page('header')]
         return page
 
-# TODO:
-# Remove:
-#     <div id="skiplink-container">
-#       <div>
-#         <a href="#content" class="skiplink">Skip to main content</a>
-#       </div>
-#     </div>
-#
-#     <div id="global-cookie-message">
-#         <p>GOV.UK uses cookies to make the site simpler. <a href="https://www.gov.uk/help/cookies">Find out more about cookies</a></p>
-#     </div>
+    def remove_non_relevant_content(self, page):
+        for phrase in self.NON_RELEVANT_PHRASES:
+            page = page.replace(phrase, "")
+        return page
