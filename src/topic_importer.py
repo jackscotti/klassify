@@ -1,6 +1,4 @@
 import requests
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from .tables import Topic, Subtopic
 from .db_handler import DBHandler
 
@@ -31,7 +29,6 @@ class TopicImporter:
     # Assign them to their parents
     # Save all
     def run(self):
-        engine = create_engine('sqlite:///klassify.db', echo=True)
         DBH = DBHandler()
         session = DBH.session
 

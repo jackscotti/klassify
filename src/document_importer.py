@@ -1,9 +1,7 @@
-import requests
 import math
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from .tables import Subtopic, Document
 from .db_handler import DBHandler
+import requests
 
 class DocumentImporter(object):
 

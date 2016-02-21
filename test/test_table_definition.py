@@ -1,8 +1,5 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from klassify.src.db_handler import DBHandler
 from klassify.src.tables import Topic, Subtopic, Document
-from klassify.src.base import Base
 import pytest
 import sqlalchemy
 

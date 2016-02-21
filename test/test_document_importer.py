@@ -1,8 +1,4 @@
 from klassify.src.tables import Subtopic, Document
-from klassify.src.db_handler import DBHandler
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from klassify.src.base import Base
 from klassify.src.document_importer import DocumentImporter
 import json
 import subprocess
