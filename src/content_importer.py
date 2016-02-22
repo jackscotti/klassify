@@ -34,6 +34,9 @@ class ContentImporter(object):
         # read documents from db
         return True
 
+    def build_url(self, document):
+        return "https://www.gov.uk" + document.base_path
+
     def run(self):
         # run importer
         return True

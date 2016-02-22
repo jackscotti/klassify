@@ -56,3 +56,10 @@ def test_extract_content():
     page_content = IMPORTER.remove_non_relevant_content(page_content)
     for phrase in IMPORTER.NON_RELEVANT_PHRASES:
         assert phrase not in page_content
+
+def test_build_url():
+    IMPORTER.DBH.session.add_all([DOCUMENT])
+
+    doc = IMPORTER.DBH.session.query(Document).first()
+
+    assert "https://www.gov.uk/intelligent-machines" == IMPORTER.build_url(doc)
