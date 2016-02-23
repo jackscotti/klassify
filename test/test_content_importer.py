@@ -17,12 +17,17 @@ DOCUMENT = Document(
     title="The Intelligent Machines"
 )
 
-IMPORTER = ContentImporter(db_name=database_name)
 DOCUMENT_HTML = open("test/fixtures/document_page.html", 'r')
+
+def setup_module(module):
+    global IMPORTER
+    IMPORTER = ContentImporter(db_name="test_klassify")
+def teardown_module(module):
+    IMPORTER.DBH.session.close()
+    IMPORTER.DBH.destroy_db_if_present()
 
 @responses.activate
 def test_extract_content():
-
     responses.add(responses.GET, 'https://www.gov.uk/government/organisations/hm-revenue-customs',
     body=DOCUMENT_HTML.read(), status=200,
     content_type='application/html')

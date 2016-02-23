@@ -29,6 +29,8 @@ class TopicImporter:
     # Assign them to their parents
     # Save all
     def run(self):
+        # to refactor
+        # add an initialiser
         DBH = DBHandler()
         session = DBH.session
 

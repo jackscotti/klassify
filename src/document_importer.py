@@ -9,7 +9,6 @@ class DocumentImporter(object):
         self.ROOT_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING"
         self.PAGE_URL = "https://www.gov.uk/api/search.json?reject_specialist_sectors=_MISSING&count=1000&start="
         self.DBH = DBHandler(db_name)
-        self.session = self.DBH.session
 
     def api_response(self, url):
         return requests.get(url).json()
@@ -54,7 +53,7 @@ class DocumentImporter(object):
 
         subtopics = []
         for subtopic_data in subtopics_data:
-            subtopic = self.session.query(Subtopic).filter_by(base_path=subtopic_data['link']).first()
+            subtopic = self.DBH.session.query(Subtopic).filter_by(base_path=subtopic_data['link']).first()
 
             if subtopic:
                 subtopics.append(subtopic)
@@ -83,13 +82,13 @@ class DocumentImporter(object):
                 # maybe create one?
 
                 try:
-                    self.session.add(document)
+                    self.DBH.session.add(document)
+                    self.DBH.session.commit()
                 except:
-                    self.session.rollback()
+                    self.DBH.session.rollback()
                     raise
                 print("Item number: ")
                 print(count)
                 count = count + 1
 
-        self.session.commit()
-        self.session.close()
+        self.DBH.session.close()

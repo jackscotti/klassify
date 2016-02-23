@@ -7,7 +7,6 @@ class ContentImporter(object):
 
     def __init__(self, db_name="klassify"):
         self.DBH = DBHandler(db_name)
-        self.session = self.DBH.session
         self.ROOT_URL = "https://www.gov.uk"
         self.NON_RELEVANT_PHRASES = [
             "Skip to main content",
