@@ -86,7 +86,6 @@ class DocumentImporter(object):
 
                 try:
                     self.DBH.session.add(document)
-                    self.DBH.session.commit()
                 except sqlalchemy.exc.IntegrityError:
                     double_documents.append(document.base_path)
                     self.DBH.session.rollback()
@@ -97,6 +96,7 @@ class DocumentImporter(object):
                 print(count)
                 count = count + 1
 
+        self.DBH.session.commit()
         self.DBH.session.close()
 
         print("Documents that appeared twice in the API and have been ignored:")
