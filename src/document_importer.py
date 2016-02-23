@@ -2,6 +2,7 @@ import math
 from .tables import Subtopic, Document
 from .db_handler import DBHandler
 import requests
+import sqlalchemy
 
 class DocumentImporter(object):
 
@@ -70,6 +71,8 @@ class DocumentImporter(object):
 
         count = 0
 
+        double_documents = []
+
         for url in urls:
             data_response =  self.api_response(url)
             documents_data = data_response['results']
@@ -84,6 +87,9 @@ class DocumentImporter(object):
                 try:
                     self.DBH.session.add(document)
                     self.DBH.session.commit()
+                except sqlalchemy.exc.IntegrityError:
+                    double_documents.append(document.base_path)
+                    self.DBH.session.rollback()
                 except:
                     self.DBH.session.rollback()
                     raise
@@ -92,3 +98,6 @@ class DocumentImporter(object):
                 count = count + 1
 
         self.DBH.session.close()
+
+        print("Documents that appeared twice in the API and have been ignored:")
+        print(double_documents)
