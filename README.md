@@ -52,13 +52,20 @@ Topic has many Subtopics
 Subtopic has many Documents
 Document has many Subtopics
 
-# Testing
+# Project setup:
+
+## Requirements:
+
+- [Python 3](https://www.python.org/downloads/)
+- [pip](https://pypi.python.org/pypi/pip) for Python 3
+
+## Install packages:
 
 From the root directoy, run:
 
-`py.test`
+`pip3 install -r requirements.txt`
 
-# Setup:
+## Import data:
 
 From the root directoy, run:
 
@@ -66,7 +73,9 @@ From the root directoy, run:
 
 The script will build the database, navigate GOV.UK's API and import the data into it.
 
-# Requirements:
 
-- Python 3
-- **TODO**: list all the libraries necessary to run the system
+# Testing
+
+From the root directoy, run:
+
+`py.test`
