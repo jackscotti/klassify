@@ -54,7 +54,6 @@ class Document(Base):
     title       = Column(String)
     base_path   = Column(String, unique=True)
     web_url     = Column(String)
-    api_url     = Column(String) # to remove
     html        = Column(Text)
     description = Column(Text)
     content     = Column(Text)
@@ -63,12 +62,11 @@ class Document(Base):
         'Subtopic', secondary=subtopics_documents, back_populates='documents'
     )
 
-    def __init__(self, title, base_path, html=None, description=None, web_url=None, api_url=None, content=None):
+    def __init__(self, title, base_path, html=None, description=None, web_url=None, content=None):
         self.title       = title
         self.base_path   = base_path
         self.html        = html
         self.web_url     = web_url
-        self.api_url     = api_url
         self.description = description
         self.content     = content
 
