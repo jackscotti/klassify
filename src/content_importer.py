@@ -33,13 +33,24 @@ class ContentImporter(object):
 
     def import_documents_html(self):
         documents = self.DBH.session.query(Document).all()
-        documents = documents
         count = len(documents)
 
         for doc in documents:
             if doc.html == None:
                 time.sleep(0.20)
                 doc.html = requests.get(doc.web_url).text
+                self.DBH.session.commit()
+            print(doc.web_url)
+            count = count - 1
+            print("Documents left: %s" % count)
+
+    def import_documents_content(self):
+        documents = self.DBH.session.query(Document).all()
+        count = len(documents)
+
+        for doc in documents:
+            if doc.content == None:
+                doc.content = self.extract_content(doc)
                 self.DBH.session.commit()
             print(doc.web_url)
             count = count - 1
