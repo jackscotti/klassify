@@ -1,7 +1,9 @@
 from .db_handler import DBHandler
-
+from .tables import Document
 from bs4 import BeautifulSoup
 import requests
+import time
+
 
 class ContentImporter(object):
 
@@ -29,12 +31,19 @@ class ContentImporter(object):
     def extract_page_content(self, page):
         return page.text
 
-    def documents():
-        # read documents from db
-        return True
+    def import_documents_html(self):
+        documents = self.DBH.session.query(Document).all()
+        documents = documents
+        count = len(documents)
 
-    def build_url(self, document):
-        return "https://www.gov.uk" + document.base_path
+        for doc in documents:
+            if doc.html == None:
+                time.sleep(0.20)
+                doc.html = requests.get(doc.web_url).text
+                self.DBH.session.commit()
+            print(doc.web_url)
+            count = count - 1
+            print("Documents left: %s" % count)
 
     def run(self):
         # run importer
