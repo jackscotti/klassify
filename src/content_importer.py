@@ -25,7 +25,7 @@ class ContentImporter(object):
         ]
 
     def parse_page(self, page):
-        soup = BeautifulSoup(page.text, 'html.parser')
+        soup = BeautifulSoup(page, 'html.parser')
         return soup
 
     def extract_page_content(self, page):
@@ -45,9 +45,17 @@ class ContentImporter(object):
             count = count - 1
             print("Documents left: %s" % count)
 
-    def run(self):
-        # run importer
-        return True
+    def extract_content(self, document):
+        page = self.parse_page(document.html)
+        page = self.remove_footer(page)
+        page = self.remove_header(page)
+        page = self.remove_script_tags(page)
+        page = self.get_body(page)
+
+        page_content = self.extract_page_content(page)
+        page_content = self.strip_new_lines(page_content)
+        page_content = self.remove_non_relevant_content(page_content)
+        return page_content
 
     def strip_new_lines(self, page):
         return page.replace('\n', ' ')
