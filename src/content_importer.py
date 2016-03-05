@@ -22,6 +22,10 @@ class ContentImporter(object):
             "Elsewhere on the web",
             "Find out about call charges",
             "find out more about beta services",
+            "Return to top ↑",
+            "Find out more about cookies",
+            "Beta",
+            "GOV.UK",
         ]
 
     def parse_page(self, page):
