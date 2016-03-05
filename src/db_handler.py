@@ -5,11 +5,11 @@ from .base import Base
 import os
 
 class DBHandler(object):
-    def __init__(self, db_name="klassify"):
+    def __init__(self, db_name="klassify", echo=True):
         self.db_name = db_name
         print("creating sqlite:///%s.db" % self.db_name)
         self.db = "sqlite:///%s.db" % self.db_name
-        self.engine = create_engine(self.db, echo=True)
+        self.engine = create_engine(self.db, echo=echo)
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
         Base.metadata.create_all(self.engine)
