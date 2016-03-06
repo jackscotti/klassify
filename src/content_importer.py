@@ -97,3 +97,11 @@ class ContentImporter(object):
         for phrase in self.NON_RELEVANT_PHRASES:
             page = page.replace(phrase, "")
         return page
+
+    def remove_punctuaction_and_numbers(self, page):
+        punctuation = ['\\', '>', '@', '_', '`', '{', ']', '*', '[', '^', '+', '!', '(', ':', ';', "'", '<', '|', '"', '?', '=', '}', '&', '/', '$', ')', '.', '~', '#', '%', ',']
+
+        page = ''.join(ch for ch in page if ch not in punctuation)
+        page = ''.join([i for i in page if not i.isdigit()])
+        
+        return page
