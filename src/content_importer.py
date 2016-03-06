@@ -4,9 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 import time
 
-
 class ContentImporter(object):
-
     def __init__(self, db_name="klassify"):
         self.DBH = DBHandler(db_name)
         self.ROOT_URL = "https://www.gov.uk"
@@ -122,5 +120,5 @@ class ContentImporter(object):
 
         page = ''.join(ch for ch in page if ch not in punctuation)
         page = ''.join([i for i in page if not i.isdigit()])
-        
+
         return page
