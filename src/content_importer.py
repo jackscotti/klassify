@@ -26,6 +26,9 @@ class ContentImporter(object):
             "Find out more about cookies",
             "Beta",
             "GOV.UK",
+            "email",
+            "Email",
+            "eg",
         ]
 
     def parse_page(self, page):
