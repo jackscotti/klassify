@@ -3,6 +3,7 @@ from .tables import Subtopic, Document
 from .db_handler import DBHandler
 import requests
 import sqlalchemy
+import time
 
 class DocumentImporter(object):
 
@@ -12,6 +13,7 @@ class DocumentImporter(object):
         self.DBH = DBHandler(db_name)
 
     def api_response(self, url):
+        time.sleep(0.15)
         return requests.get(url).json()
 
     def total_documents(self, document_data):
