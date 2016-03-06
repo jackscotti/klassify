@@ -29,6 +29,22 @@ class ContentImporter(object):
             "email",
             "Email",
             "eg",
+            "PDF",
+            "KB",
+            "Send",
+            "Don’t include personal or financial information",
+            "HTML",
+            "Help us improve",
+            "Detail",
+            "Document",
+            "This file may not be suitable for users of assistive technology"
+            "If you use assistive technology and need a version of this document in a more accessible format",
+            "tell us what format you need It will help us if you say what assistive technology you use",
+            "please",
+            "Please",
+            "Request a different format",
+            "Published",
+            "November", "December", "January", "February", "Mach", "April", "May", "June", "July", "August", "September", "October", "November", "December",
         ]
 
     def parse_page(self, page):
@@ -56,9 +72,8 @@ class ContentImporter(object):
         count = len(documents)
 
         for doc in documents:
-            if doc.content == None:
-                doc.content = self.extract_content(doc)
-                self.DBH.session.commit()
+            doc.content = self.extract_content(doc)
+            self.DBH.session.commit()
             print(doc.web_url)
             count = count - 1
             print("Documents left: %s" % count)
@@ -73,6 +88,7 @@ class ContentImporter(object):
         page_content = self.extract_page_content(page)
         page_content = self.strip_new_lines(page_content)
         page_content = self.remove_non_relevant_content(page_content)
+        page_content = self.remove_punctuaction_and_numbers(page_content)
         return page_content
 
     def strip_new_lines(self, page):
@@ -102,7 +118,7 @@ class ContentImporter(object):
         return page
 
     def remove_punctuaction_and_numbers(self, page):
-        punctuation = ['\\', '>', '@', '_', '`', '{', ']', '*', '[', '^', '+', '!', '(', ':', ';', "'", '<', '|', '"', '?', '=', '}', '&', '/', '$', ')', '.', '~', '#', '%', ',']
+        punctuation = ['\\', '>', '_', '`', '{', ']', '*', '[', '^', '+', '!', '(', ':', ';', "'", '<', '|', '"', '?', '=', '}', '&', '/', '$', ')', '~', '#', '%', ',']
 
         page = ''.join(ch for ch in page if ch not in punctuation)
         page = ''.join([i for i in page if not i.isdigit()])
