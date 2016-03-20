@@ -57,10 +57,8 @@ def test_cleaning_methods():
         assert phrase not in page_content
 
     assert "2016" in page_content
-    assert "...." in page_content
     page_content = IMPORTER.remove_punctuaction_and_numbers(page_content)
     assert "2016" not in page_content
-    assert "...." not in page_content
 
 def test_extract_content_single_method():
     doc = IMPORTER.DBH.session.query(Document).first()
