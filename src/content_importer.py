@@ -10,7 +10,6 @@ class ContentImporter(object):
         self.ROOT_URL = "https://www.gov.uk"
         self.NON_RELEVANT_PHRASES = [
             "Skip to main content",
-            "GOV.UK uses cookies to make the site simpler.",
             "Find out more about cookies"
             "GOV.UK uses cookies to make the site simpler",
             "Is there anything wrong with this page",
