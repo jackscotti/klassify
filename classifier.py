@@ -6,6 +6,7 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import string
 import random
+import pickle
 
 DBH = DBHandler(echo=False)
 
@@ -90,15 +91,16 @@ class WordProcessor():
     def freq_dist(self, vocabulary):
         return nltk.FreqDist(vocabulary)
 
-    def top_words(self, freq_dist, number=500):
+    def top_words(self, freq_dist, number=1500):
         return list(freq_dist.keys())[:number]
 
 
 def random_topics():
     topics = DBH.session.query(Topic).all()
     random.shuffle(topics)
-    topics = topics[:3]
-    [print(topic.title) for topic in topics]
+    topics = topics
+    print("Topics selected:")
+    print([topic.title for topic in topics])
     return topics
 
 random_topics = random_topics()
@@ -129,10 +131,6 @@ def get_distinct(original_list):
 document_set_with_category = get_distinct(all_documents())
 random.shuffle(document_set_with_category)
 
-# for feeding it to the classifier
-# picked_item = document_set_with_category[0]
-# document_set_with_category.remove(picked_item)
-
 # remove category
 processor = WordProcessor([doc for doc, cat in document_set_with_category])
 
@@ -142,6 +140,7 @@ class OneVSRest():
     def __init__(self, featuresets, topics):
         self.featuresets = featuresets
         self.topics = topics
+        self.classifiers = []
 
     def split_list(self, featuresets):
         half = int(len(featuresets)/2)
@@ -175,17 +174,56 @@ class OneVSRest():
             training_testing.append([training_set, testing_set])
         return training_testing
 
-
     def train_classifiers(self):
         for training_set, testing_set in self.sets_of_training_testing_data():
             classifier = nltk.NaiveBayesClassifier.train(training_set)
 
-            print("Classifier accuracy percent:",(nltk.classify.accuracy(classifier, testing_set))*100)
             for label in classifier.labels():
                 if label != "Rest":
-                    print("'%s' VS 'Rest':" % label)
-            classifier.show_most_informative_features(20)
+                    working_label = label
+                    print("'%s' VS 'Rest':" % working_label)
+            print("Classifier accuracy percent:",(nltk.classify.accuracy(classifier, testing_set))*100)
+            # Print most informative features
+            # classifier.show_most_informative_features(10)
 
+            self.save_classifier(classifier, working_label)
+            self.classifiers.append(classifier)
+
+    def classify_single_document(self):
+        topics = DBH.session.query(Topic).all()
+        topic = random.choice(topics)
+        subtopic = random.choice(topic.subtopics)
+        random_doc = random.choice(subtopic.documents)
+
+        bag_for_random = processor.bag_of_words(random_doc)
+        for classifier in self.classifiers:
+            topic_label = ""
+            for label in classifier.labels():
+                if label != "Rest":
+                    topic_label = label
+            probability = classifier.prob_classify(bag_for_random).prob(topic_label) * 100
+            probability = round(probability, 2)
+            # this should check the non 'rest' label, not the only winning one
+            print("The item can be labeled to: %s" % topic_label)
+            print("With confidence: " +  str(probability) + "%")
+
+        print("\nDoc data:")
+        print(random_doc.web_url)
+        for subtopic in random_doc.subtopics:
+            print("Topic: %s" % subtopic.topic.title)
+
+    def save_classifier(self, classifier, label):
+        label = self.format_label(label)
+        print("Saving classifier: %s" % label)
+        file_path =  "pickle/classifiers/all_topics/%s.p" % label
+        pickle.dump( classifier, open( file_path, "wb+" ) )
+
+    def format_label(self, label):
+        label = label.lower()
+        label = label.replace(",", "")
+        label = label.replace(" ", "-")
+        return label
 
 ovs = OneVSRest(featuresets, random_topics)
 ovs.train_classifiers()
+ovs.classify_single_document()
