@@ -181,7 +181,9 @@ class OneVSRest():
             classifier = nltk.NaiveBayesClassifier.train(training_set)
 
             print("Classifier accuracy percent:",(nltk.classify.accuracy(classifier, testing_set))*100)
-            print("'%s' VS '%s':" % tuple(classifier.labels()))
+            for label in classifier.labels():
+                if label != "Rest":
+                    print("'%s' VS 'Rest':" % label)
             classifier.show_most_informative_features(20)
 
 
