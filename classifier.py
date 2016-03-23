@@ -12,7 +12,7 @@ DBH = DBHandler(echo=False)
 def random_topics():
     topics = DBH.session.query(Topic).all()
     random.shuffle(topics)
-    topics = topics
+    topics = topics[:3]
     print("Topics selected:")
     print([topic.title for topic in topics])
     return topics
@@ -34,21 +34,26 @@ def all_documents():
 
     return documents
 
-# some docs can appear in several topics, this should not be run
-def get_distinct(original_list):
-    distinct_list = []
-    for each in original_list:
-        if each not in distinct_list:
-            distinct_list.append(each)
-    return distinct_list
+document_set_with_category = all_documents()
 
-document_set_with_category = get_distinct(all_documents())
 random.shuffle(document_set_with_category)
 
 # remove category
 processor = WordProcessor([doc for doc, cat in document_set_with_category])
 
-featuresets = [(processor.bag_of_words(document), category) for (document, category) in document_set_with_category]
+featuresets = []
+count = 0
+for (document, category) in document_set_with_category:
+    count = count + 1
+    if (count % 25 == 0): print("Processing %d of %d" % (count, len(document_set_with_category)))
+    featuresets.append([processor.bag_of_words(document), category])
+
+
+from nltk.classify.scikitlearn import SklearnClassifier
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.multiclass import OneVsRestClassifier
 
 class OneVSRest():
     def __init__(self, featuresets, topics):
@@ -60,84 +65,45 @@ class OneVSRest():
         half = int(len(featuresets)/2)
         return featuresets[:half], featuresets[half:]
 
-    def rename_label(self, featureset, topic):
-        # Rename to binary labels, Topic VS Rest
-        title = topic.title
-        if featureset[1] != title:
-            featureset = [featureset[0], "Rest"]
-
-        return featureset
-
-    def featuresets_for_one_vs_all(self):
-        # Builds a series of binary featureset
-        sets_of_featuresets = []
-
-        for topic in self.topics:
-            topic_featureset = []
-            for featureset in self.featuresets:
-                topic_featureset.append(self.rename_label(featureset, topic))
-            sets_of_featuresets.append(topic_featureset)
-
-        return sets_of_featuresets
-
-    def sets_of_training_testing_data(self):
-        # Split features sets in testing and training sets
-        training_testing = []
-        for featuresets in self.featuresets_for_one_vs_all():
-            training_set, testing_set = self.split_list(featuresets)
-            training_testing.append([training_set, testing_set])
-        return training_testing
-
     def train_classifiers(self):
-        for training_set, testing_set in self.sets_of_training_testing_data():
-            classifier = nltk.NaiveBayesClassifier.train(training_set)
+        training_set, testing_set = self.split_list(self.featuresets)
 
-            for label in classifier.labels():
-                if label != "Rest":
-                    working_label = label
-                    print("'%s' VS 'Rest':" % working_label)
-            print("Classifier accuracy percent:",(nltk.classify.accuracy(classifier, testing_set))*100)
-            # Print most informative features
-            # classifier.show_most_informative_features(10)
+        one_vs_rest = SklearnClassifier(OneVsRestClassifier(MultinomialNB()))
 
-            self.save_classifier(classifier, working_label)
-            self.classifiers.append(classifier)
+        one_vs_rest.train(training_set)
 
-    def classify_single_document(self):
-        topics = DBH.session.query(Topic).all()
-        topic = random.choice(topics)
-        subtopic = random.choice(topic.subtopics)
-        random_doc = random.choice(subtopic.documents)
+        print("One-vs-rest accuracy percent:",(nltk.classify.accuracy(one_vs_rest, testing_set))*100)
 
-        bag_for_random = processor.bag_of_words(random_doc)
-        for classifier in self.classifiers:
-            topic_label = ""
-            for label in classifier.labels():
-                if label != "Rest":
-                    topic_label = label
-            probability = classifier.prob_classify(bag_for_random).prob(topic_label) * 100
+        self.classifier = one_vs_rest
+
+    def classify_single_document(self, document):
+        bag_of_words = processor.bag_of_words(document)
+
+        for label in self.classifier.labels():
+            probability = self.classifier.prob_classify(bag_of_words).prob(label) * 100
             probability = round(probability, 2)
-            # this should check the non 'rest' label, not the only winning one
-            print("The item can be labeled to: %s" % topic_label)
-            print("With confidence: " +  str(probability) + "%")
+            print("Doc is: %s" % label)
+            print("-> confidence: " +  str(probability) + "%")
 
         print("\nDoc data:")
-        print(random_doc.web_url)
-        for subtopic in random_doc.subtopics:
+        print(document.web_url)
+        for subtopic in document.subtopics:
             print("Topic: %s" % subtopic.topic.title)
 
-    def save_classifier(self, classifier, label):
-        label = self.format_label(label)
-        print("Saving classifier: %s" % label)
-        file_path =  "pickle/classifiers/all_topics/%s.p" % label
-        pickle.dump( classifier, open( file_path, "wb+" ) )
-
-    def format_label(self, label):
-        label = label.lower()
-        label = label.replace(",", "")
-        label = label.replace(" ", "-")
-        return label
 
 ovs = OneVSRest(featuresets, random_topics)
 ovs.train_classifiers()
-ovs.classify_single_document()
+
+def find_random_doc_by_title(title):
+    topic = DBH.session.query(Topic).filter(Topic.title == title).first()
+    subtopic = random.choice(topic.subtopics)
+    return random.choice(subtopic.documents)
+
+def random_document():
+    topics = DBH.session.query(Topic).all()
+    topic = random.choice(topics)
+    subtopic = random.choice(topic.subtopics)
+    return random.choice(subtopic.documents)
+
+import pdb; pdb.set_trace()
+ovs.classify_single_document(random_document())
