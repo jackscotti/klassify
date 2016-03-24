@@ -60,9 +60,10 @@ from sklearn.preprocessing import MultiLabelBinarizer
 
 class OneVSRest():
     def __init__(self, featuresets, topics):
-        self.featuresets = featuresets
         self.topics = topics
         self.mlb = MultiLabelBinarizer()
+        # labeled_featuresets should become training featuresets
+        self.labeled_featuresets, self.testing_set = self.split_list(featuresets)
 
     def split_list(self, featuresets):
         half = int(len(featuresets)/2)
@@ -71,9 +72,7 @@ class OneVSRest():
     def build_classifier(self):
         self.classifier = SklearnClassifier(OneVsRestClassifier(MultinomialNB()))
 
-    def train_classifier(self):
-        labeled_featuresets, testing_set = self.split_list(self.featuresets)
-
+    def prepare_scikit_x_and_y(self, labeled_featuresets):
         X, y = list(compat.izip(*labeled_featuresets))
         X = self.classifier._vectorizer.fit_transform(X)
 
@@ -82,23 +81,16 @@ class OneVSRest():
             set_of_labels.append(set([label]))
 
         y = self.mlb.fit_transform(set_of_labels)
-        # y = self.classifier._encoder.fit_transform(y)
 
+        return X, y
+
+    def train_classifier(self):
+        X, y = self.prepare_scikit_x_and_y(self.labeled_featuresets)
         self.classifier._clf.fit(X, y)
 
-
-        # testing
-        X_test, y_test = list(compat.izip(*testing_set))
-        X_test = self.classifier._vectorizer.fit_transform(X_test)
-        set_of_labels_test = []
-        for label in y_test:
-            set_of_labels_test.append(set([label]))
-
-        y_test = self.mlb.fit_transform(set_of_labels_test)
-
-        print("Classifier accuracy against test data:", str(round(float(self.classifier._clf.score(X_test, y_test) * 100), 2)) + "%")
-
-        return self.classifier
+    def test_classifier(self):
+        X, y = self.prepare_scikit_x_and_y(self.testing_set)
+        print("Classifier accuracy against test data:", str(round(float(self.classifier._clf.score(X, y) * 100), 2)) + "%")
 
     def predict_for_random(self, doc):
         print("Predicting for:", doc.title)
@@ -129,6 +121,7 @@ class OneVSRest():
 ovs = OneVSRest(featuresets, random_topics)
 ovs.build_classifier()
 ovs.train_classifier()
+ovs.test_classifier()
 
 def find_random_doc_by_title(title):
     topic = DBH.session.query(Topic).filter(Topic.title == title).first()
