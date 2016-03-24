@@ -60,22 +60,13 @@ from sklearn.preprocessing import MultiLabelBinarizer
 
 class OneVSRest():
     def __init__(self, featuresets, topics):
-        self.featuresets = featuresets[:100]
+        self.featuresets = featuresets
         self.topics = topics
+        self.mlb = MultiLabelBinarizer()
 
     def split_list(self, featuresets):
         half = int(len(featuresets)/2)
         return featuresets[:half], featuresets[half:]
-
-    # def train_classifiers(self):
-    #     training_set, testing_set = self.split_list(self.featuresets)
-    #
-    #     ovr = SklearnClassifier(OneVsRestClassifier(MultinomialNB()))
-    #     # ovr.train(training_set)
-    #     #
-    #     # print("One-vs-rest accuracy percent:",(nltk.classify.accuracy(ovr, testing_set))*100)
-    #     #
-    #     # self.classifier = ovr
 
     def build_classifier(self):
 
@@ -87,31 +78,36 @@ class OneVSRest():
         labeled_featuresets, testing_set = self.split_list(self.featuresets)
 
         X, y = list(compat.izip(*labeled_featuresets))
-        import pdb; pdb.set_trace()
         X = self.classifier._vectorizer.fit_transform(X)
-        y = self.classifier._encoder.fit_transform(y)
 
-        mlb = MultiLabelBinarizer()
+        set_of_labels = []
+        for label in y:
+            set_of_labels.append(set([label]))
+
+        y = self.mlb.fit_transform(set_of_labels)
+        # import pdb; pdb.set_trace()
+        # y = self.classifier._encoder.fit_transform(y)
 
         self.classifier._clf.fit(X, y)
+        # import pdb; pdb.set_trace()
 
-        print("One-vs-rest accuracy percent:",(nltk.classify.accuracy(self.classifier, testing_set))*100)
+        # print("One-vs-rest accuracy percent:",(nltk.classify.accuracy(self.classifier, testing_set))*100)
 
         return self.classifier
 
-    def classify_single_document(self, document):
-        bag_of_words = processor.bag_of_words(document)
-
-        for label in self.classifier.labels():
-            probability = self.classifier.prob_classify(bag_of_words).prob(label) * 100
-            probability = round(probability, 2)
-            print("Label: %s" % label)
-            print("-> confidence: " +  str(probability) + "%")
-
-        print("\nDoc data:")
-        print(document.web_url)
-        for subtopic in document.subtopics:
-            print("Topic: %s" % subtopic.topic.title)
+    # def classify_single_document(self, document):
+    #     bag_of_words = processor.bag_of_words(document)
+    #
+    #     for label in self.classifier.labels():
+    #         probability = self.classifier.prob_classify(bag_of_words).prob(label) * 100
+    #         probability = round(probability, 2)
+    #         print("Label: %s" % label)
+    #         print("-> confidence: " +  str(probability) + "%")
+    #
+    #     print("\nDoc data:")
+    #     print(document.web_url)
+    #     for subtopic in document.subtopics:
+    #         print("Topic: %s" % subtopic.topic.title)
 
 ovs = OneVSRest(featuresets, random_topics)
 ovs.build_classifier()
@@ -128,5 +124,10 @@ def random_document():
     subtopic = random.choice(topic.subtopics)
     return random.choice(subtopic.documents)
 
+def scikit_predict_random():
+    X = ovs.classifier._vectorizer.fit_transform(processor.bag_of_words(random_document()))
+    print(ovs.classifier._clf.predict(X))
+    return ovs.classifier._clf.predict_proba(X)
+
 import pdb; pdb.set_trace()
-ovs.classify_single_document(random_document())
+scikit_predict_random()
