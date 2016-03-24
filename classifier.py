@@ -51,30 +51,53 @@ for (document, category) in document_set_with_category:
 
 from nltk.classify.scikitlearn import SklearnClassifier
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.naive_bayes import GaussianNB
-from sklearn.naive_bayes import BernoulliNB
+# from sklearn.naive_bayes import GaussianNB
+# from sklearn.naive_bayes import BernoulliNB
 from sklearn.multiclass import OneVsRestClassifier
+from nltk import compat
+
+from sklearn.preprocessing import MultiLabelBinarizer
 
 class OneVSRest():
     def __init__(self, featuresets, topics):
-        self.featuresets = featuresets
+        self.featuresets = featuresets[:100]
         self.topics = topics
-        self.classifiers = []
 
     def split_list(self, featuresets):
         half = int(len(featuresets)/2)
         return featuresets[:half], featuresets[half:]
 
-    def train_classifiers(self):
-        training_set, testing_set = self.split_list(self.featuresets)
+    # def train_classifiers(self):
+    #     training_set, testing_set = self.split_list(self.featuresets)
+    #
+    #     ovr = SklearnClassifier(OneVsRestClassifier(MultinomialNB()))
+    #     # ovr.train(training_set)
+    #     #
+    #     # print("One-vs-rest accuracy percent:",(nltk.classify.accuracy(ovr, testing_set))*100)
+    #     #
+    #     # self.classifier = ovr
 
-        one_vs_rest = SklearnClassifier(OneVsRestClassifier(MultinomialNB()))
+    def build_classifier(self):
 
-        one_vs_rest.train(training_set)
+        ovr = SklearnClassifier(OneVsRestClassifier(MultinomialNB()))
 
-        print("One-vs-rest accuracy percent:",(nltk.classify.accuracy(one_vs_rest, testing_set))*100)
+        self.classifier = ovr
 
-        self.classifier = one_vs_rest
+    def train_classifier(self):
+        labeled_featuresets, testing_set = self.split_list(self.featuresets)
+
+        X, y = list(compat.izip(*labeled_featuresets))
+        import pdb; pdb.set_trace()
+        X = self.classifier._vectorizer.fit_transform(X)
+        y = self.classifier._encoder.fit_transform(y)
+
+        mlb = MultiLabelBinarizer()
+
+        self.classifier._clf.fit(X, y)
+
+        print("One-vs-rest accuracy percent:",(nltk.classify.accuracy(self.classifier, testing_set))*100)
+
+        return self.classifier
 
     def classify_single_document(self, document):
         bag_of_words = processor.bag_of_words(document)
@@ -82,7 +105,7 @@ class OneVSRest():
         for label in self.classifier.labels():
             probability = self.classifier.prob_classify(bag_of_words).prob(label) * 100
             probability = round(probability, 2)
-            print("Doc is: %s" % label)
+            print("Label: %s" % label)
             print("-> confidence: " +  str(probability) + "%")
 
         print("\nDoc data:")
@@ -90,9 +113,9 @@ class OneVSRest():
         for subtopic in document.subtopics:
             print("Topic: %s" % subtopic.topic.title)
 
-
 ovs = OneVSRest(featuresets, random_topics)
-ovs.train_classifiers()
+ovs.build_classifier()
+ovs.train_classifier()
 
 def find_random_doc_by_title(title):
     topic = DBH.session.query(Topic).filter(Topic.title == title).first()
