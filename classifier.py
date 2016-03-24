@@ -63,7 +63,7 @@ class OneVSRest():
         self.topics = topics
         self.mlb = MultiLabelBinarizer()
         # labeled_featuresets should become training featuresets
-        self.labeled_featuresets, self.testing_set = self.split_list(featuresets)
+        self.training_featuresets, self.testing_sets = self.split_list(featuresets)
 
     def split_list(self, featuresets):
         half = int(len(featuresets)/2)
@@ -85,11 +85,11 @@ class OneVSRest():
         return X, y
 
     def train_classifier(self):
-        X, y = self.prepare_scikit_x_and_y(self.labeled_featuresets)
+        X, y = self.prepare_scikit_x_and_y(self.training_featuresets)
         self.classifier._clf.fit(X, y)
 
     def test_classifier(self):
-        X, y = self.prepare_scikit_x_and_y(self.testing_set)
+        X, y = self.prepare_scikit_x_and_y(self.testing_sets)
         print("Classifier accuracy against test data:", str(round(float(self.classifier._clf.score(X, y) * 100), 2)) + "%")
 
     def predict_for_random(self, doc):
