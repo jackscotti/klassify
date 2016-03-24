@@ -62,15 +62,12 @@ class OneVSRest():
     def __init__(self, featuresets, topics):
         self.topics = topics
         self.mlb = MultiLabelBinarizer()
-        # labeled_featuresets should become training featuresets
         self.training_featuresets, self.testing_sets = self.split_list(featuresets)
+        self.classifier = SklearnClassifier(OneVsRestClassifier(MultinomialNB()))
 
     def split_list(self, featuresets):
         half = int(len(featuresets)/2)
         return featuresets[:half], featuresets[half:]
-
-    def build_classifier(self):
-        self.classifier = SklearnClassifier(OneVsRestClassifier(MultinomialNB()))
 
     def prepare_scikit_x_and_y(self, labeled_featuresets):
         X, y = list(compat.izip(*labeled_featuresets))
@@ -99,7 +96,6 @@ class OneVSRest():
         for subtopic in doc.subtopics:
             current_labels.append(subtopic.topic.title)
 
-        # import pdb; pdb.set_trace()
         print(set(current_labels))
 
         print("====> Predictions:")
@@ -119,7 +115,6 @@ class OneVSRest():
             print(str(round(float(probabilities[idx] * 100), 2)) + "%")
 
 ovs = OneVSRest(featuresets, random_topics)
-ovs.build_classifier()
 ovs.train_classifier()
 ovs.test_classifier()
 
