@@ -45,7 +45,7 @@ featuresets = []
 count = 0
 for (document, category) in document_set_with_category:
     count = count + 1
-    if (count % 25 == 0): print("Processing %d of %d" % (count, len(document_set_with_category)))
+    if (count % 50 == 0): print("Processing %d of %d" % (count, len(document_set_with_category)))
     featuresets.append([processor.bag_of_words(document), category])
 
 
@@ -69,10 +69,7 @@ class OneVSRest():
         return featuresets[:half], featuresets[half:]
 
     def build_classifier(self):
-
-        ovr = SklearnClassifier(OneVsRestClassifier(MultinomialNB()))
-
-        self.classifier = ovr
+        self.classifier = SklearnClassifier(OneVsRestClassifier(MultinomialNB()))
 
     def train_classifier(self):
         labeled_featuresets, testing_set = self.split_list(self.featuresets)
@@ -89,15 +86,29 @@ class OneVSRest():
 
         self.classifier._clf.fit(X, y)
 
-        # print("One-vs-rest accuracy percent:",(nltk.classify.accuracy(self.classifier, testing_set))*100)
+
+        # testing
+        X_test, y_test = list(compat.izip(*testing_set))
+        X_test = self.classifier._vectorizer.fit_transform(X_test)
+        set_of_labels_test = []
+        for label in y_test:
+            set_of_labels_test.append(set([label]))
+
+        y_test = self.mlb.fit_transform(set_of_labels_test)
+
+        print("Classifier accuracy against test data:", str(round(float(self.classifier._clf.score(X_test, y_test) * 100), 2)) + "%")
 
         return self.classifier
 
     def predict_for_random(self, doc):
-        print("Predicting for: ", doc.title)
+        print("Predicting for:", doc.title)
         print("Item is labeled to:")
+        current_labels = []
         for subtopic in doc.subtopics:
-            print(subtopic.topic.title)
+            current_labels.append(subtopic.topic.title)
+
+        # import pdb; pdb.set_trace()
+        print(set(current_labels))
 
         print("====> Predictions:")
 
@@ -112,9 +123,8 @@ class OneVSRest():
 
         for idx, label in enumerate(predicted_labels):
             # import pdb; pdb.set_trace()
-            if label:
-                print(named_classes[idx] + " - Confidence: ", end="")
-                print(str(round(float(probabilities[idx] * 100), 2)) + "%")
+            print(named_classes[idx] + " - Confidence: ", end="")
+            print(str(round(float(probabilities[idx] * 100), 2)) + "%")
 
 ovs = OneVSRest(featuresets, random_topics)
 ovs.build_classifier()
