@@ -7,65 +7,63 @@ import random
 import nltk
 
 class DocumentHandler():
-    def pick_random_topics(self, n=3):
-        topics = DBH.session.query(Topic).all()
+    def __init__(self, n=3):
+        self.DBH = DBHandler(echo=False)
+        self.topics = self.pick_random_topics(n)
+        self.labels = [topic.title for topic in self.topics]
+        self.docs_with_labels = self.docs_with_labels()
+        print("Topics selected:")
+        print(self.labels)
+        self.featuresets = []
+
+    def pick_random_topics(self, n):
+        topics = self.DBH.session.query(Topic).all()
         random.shuffle(topics)
         topics = topics[:n]
-        print("Topics selected:")
-        print([topic.title for topic in topics])
         return topics
 
     def find_random_doc_by_title(self, title):
-        topic = DBH.session.query(Topic).filter(Topic.title == title).first()
+        topic = self.DBH.session.query(Topic).filter(Topic.title == title).first()
         subtopic = random.choice(topic.subtopics)
         return random.choice(subtopic.documents)
 
     def random_document(self):
-        topics = DBH.session.query(Topic).all()
-        topic = random.choice(topics)
+        all_topics = self.DBH.session.query(Topic).all()
+        topic = random.choice(all_topics)
         subtopic = random.choice(topic.subtopics)
         return random.choice(subtopic.documents)
 
-def find_documents_for_topic_with_category(topic):
-    document_set_with_category = []
-    for subtopic in topic.subtopics:
-        for document in subtopic.documents:
-            document_subtopics = document.subtopics
-            document_topics = [subtopic.topic.title for subtopic in document_subtopics]
-            labels = []
-            for document_topic in document_topics:
-                if document_topic in selected_labels and document_topic not in labels:
-                    labels.append(document_topic)
+    def docs_with_labels(self):
+        docs_with_labels = []
+        for topic in self.topics:
+            for subtopic in topic.subtopics:
+                for doc in subtopic.documents:
+                    doc_labels = self.find_doc_topics(doc)
+                    # this could do the bag of words logic
+                    docs_with_labels.append([doc, doc_labels])
 
-            document_set_with_category.append([document, labels])
+        return docs_with_labels
 
-    return document_set_with_category
+    def find_doc_topics(self, doc):
+        labels = []
+        for subtopic in doc.subtopics:
+            if (subtopic.topic.title in self.labels) and (subtopic.topic.title not in labels):
+                labels.append(subtopic.topic.title)
+        return labels
 
-def all_documents():
-    documents = []
-    for topic in random_topics:
-        documents = documents + find_documents_for_topic_with_category(topic)
+    def build_feature_sets(self, processor):
+        document_set_with_category = self.docs_with_labels
+        random.shuffle(document_set_with_category)
 
-    return documents
+        count = 0
+        for (document, category) in document_set_with_category:
+            count = count + 1
+            if (count % 100 == 0): print("Processing %d of %d" % (count, len(document_set_with_category)))
+            self.featuresets.append([processor.bag_of_words(document), category])
 
-DBH = DBHandler(echo=False)
 doc_handler = DocumentHandler()
-random_topics = doc_handler.pick_random_topics()
-selected_labels = [topic.title for topic in random_topics]
-
-document_set_with_category = all_documents()
-random.shuffle(document_set_with_category)
-
-# remove category
-processor = WordProcessor([doc for doc, cat in document_set_with_category])
-
-featuresets = []
-count = 0
-for (document, category) in document_set_with_category:
-    count = count + 1
-    if (count % 100 == 0): print("Processing %d of %d" % (count, len(document_set_with_category)))
-    featuresets.append([processor.bag_of_words(document), category])
-
+processor = WordProcessor([doc for doc, cat in doc_handler.docs_with_labels])
+doc_handler.build_feature_sets(processor)
 # from sklearn.naive_bayes import GaussianNB
 # from sklearn.naive_bayes import BernoulliNB
 from nltk import compat
@@ -133,7 +131,7 @@ class OvrHandler():
             print(named_classes[idx] + " - Confidence: ", end="")
             print(str(round(float(probabilities[idx] * 100), 2)) + "%")
 
-ovs = OvrHandler(featuresets)
+ovs = OvrHandler(doc_handler.featuresets)
 ovs.train_classifier()
 ovs.test_classifier()
 ovs.predict_for_random(doc_handler.random_document())
