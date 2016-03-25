@@ -4,18 +4,27 @@ from src.word_processor import WordProcessor
 
 import string
 import random
-import pickle
 import nltk
 
-DBH = DBHandler(echo=False)
+class DocumentHandler():
+    def pick_random_topics(self, n=3):
+        topics = DBH.session.query(Topic).all()
+        random.shuffle(topics)
+        topics = topics[:n]
+        print("Topics selected:")
+        print([topic.title for topic in topics])
+        return topics
 
-def random_topics():
-    topics = DBH.session.query(Topic).all()
-    random.shuffle(topics)
-    topics = topics[:4]
-    print("Topics selected:")
-    print([topic.title for topic in topics])
-    return topics
+    def find_random_doc_by_title(self, title):
+        topic = DBH.session.query(Topic).filter(Topic.title == title).first()
+        subtopic = random.choice(topic.subtopics)
+        return random.choice(subtopic.documents)
+
+    def random_document(self):
+        topics = DBH.session.query(Topic).all()
+        topic = random.choice(topics)
+        subtopic = random.choice(topic.subtopics)
+        return random.choice(subtopic.documents)
 
 def find_documents_for_topic_with_category(topic):
     document_set_with_category = []
@@ -39,19 +48,9 @@ def all_documents():
 
     return documents
 
-def find_random_doc_by_title(title):
-    topic = DBH.session.query(Topic).filter(Topic.title == title).first()
-    subtopic = random.choice(topic.subtopics)
-    return random.choice(subtopic.documents)
-
-def random_document():
-    topics = DBH.session.query(Topic).all()
-    topic = random.choice(topics)
-    subtopic = random.choice(topic.subtopics)
-    return random.choice(subtopic.documents)
-
 DBH = DBHandler(echo=False)
-random_topics = random_topics()
+doc_handler = DocumentHandler()
+random_topics = doc_handler.pick_random_topics()
 selected_labels = [topic.title for topic in random_topics]
 
 document_set_with_category = all_documents()
@@ -104,10 +103,11 @@ class OvrHandler():
 
     def test_classifier(self):
         try:
-          X, y = self.prepare_scikit_x_and_y(self.testing_sets)
-          print("Classifier accuracy against test data:", str(round(float(self.classifier.score(X, y) * 100), 2)) + "%")
+            X, y = self.prepare_scikit_x_and_y(self.testing_sets)
+            print("Classifier accuracy against test data:", str(round(float(self.classifier.score(X, y) * 100), 2)) + "%")
         except Exception:
-          import pdb; pdb.set_trace()
+            # this raises because of inconsistent shapes, still need to find out why
+            import pdb; pdb.set_trace()
 
     def predict_for_random(self, doc):
         print("Predicting for:", doc.title)
@@ -136,6 +136,4 @@ class OvrHandler():
 ovs = OvrHandler(featuresets)
 ovs.train_classifier()
 ovs.test_classifier()
-ovs.predict_for_random(random_document())
-
-# TODO: now i can set documents with multiple topics, remove duplicates
+ovs.predict_for_random(doc_handler.random_document())
