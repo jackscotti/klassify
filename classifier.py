@@ -6,7 +6,7 @@ import string
 import random
 import nltk
 
-class DocumentHandler():
+class DocumentOperator():
     def __init__(self, n=3):
         self.DBH = DBHandler(echo=False)
         self.topics = self.pick_random_topics(n)
@@ -15,6 +15,7 @@ class DocumentHandler():
         print("Topics selected:")
         print(self.labels)
         self.featuresets = []
+        self.processor = WordProcessor([doc for doc, cat in self.docs_with_labels])
 
     def pick_random_topics(self, n):
         topics = self.DBH.session.query(Topic).all()
@@ -31,7 +32,9 @@ class DocumentHandler():
         all_topics = self.DBH.session.query(Topic).all()
         topic = random.choice(all_topics)
         subtopic = random.choice(topic.subtopics)
-        return random.choice(subtopic.documents)
+        doc = random.choice(subtopic.documents)
+        bag_of_words = self.baggify_document(doc)
+        return doc, bag_of_words
 
     def docs_with_labels(self):
         docs_with_labels = []
@@ -39,7 +42,6 @@ class DocumentHandler():
             for subtopic in topic.subtopics:
                 for doc in subtopic.documents:
                     doc_labels = self.find_doc_topics(doc)
-                    # this could do the bag of words logic
                     docs_with_labels.append([doc, doc_labels])
 
         return docs_with_labels
@@ -51,7 +53,7 @@ class DocumentHandler():
                 labels.append(subtopic.topic.title)
         return labels
 
-    def build_feature_sets(self, processor):
+    def build_feature_sets(self):
         document_set_with_category = self.docs_with_labels
         random.shuffle(document_set_with_category)
 
@@ -59,11 +61,13 @@ class DocumentHandler():
         for (document, category) in document_set_with_category:
             count = count + 1
             if (count % 100 == 0): print("Processing %d of %d" % (count, len(document_set_with_category)))
-            self.featuresets.append([processor.bag_of_words(document), category])
+            self.featuresets.append([self.baggify_document(document), category])
 
-doc_handler = DocumentHandler()
-processor = WordProcessor([doc for doc, cat in doc_handler.docs_with_labels])
-doc_handler.build_feature_sets(processor)
+    def baggify_document(self, doc):
+        return self.processor.bag_of_words(doc)
+
+doc_op = DocumentOperator()
+doc_op.build_feature_sets()
 # from sklearn.naive_bayes import GaussianNB
 # from sklearn.naive_bayes import BernoulliNB
 from nltk import compat
@@ -107,7 +111,8 @@ class OvrHandler():
             # this raises because of inconsistent shapes, still need to find out why
             import pdb; pdb.set_trace()
 
-    def predict_for_random(self, doc):
+    def predict_for_random(self, doc_with_bag_of_words):
+        doc, bag_of_words = doc_with_bag_of_words
         print("Predicting for:", doc.title)
         print("Item is labeled to:")
         current_labels = []
@@ -118,7 +123,7 @@ class OvrHandler():
 
         print("====> Predictions:")
 
-        X = self._vectorizer.fit_transform(processor.bag_of_words(doc))
+        X = self._vectorizer.fit_transform(bag_of_words)
         predicted_labels = (self.classifier.predict(X))[0]
         probabilities =  self.classifier.predict_proba(X)[0]
         named_classes = self.mlb.classes_
@@ -131,7 +136,8 @@ class OvrHandler():
             print(named_classes[idx] + " - Confidence: ", end="")
             print(str(round(float(probabilities[idx] * 100), 2)) + "%")
 
-ovs = OvrHandler(doc_handler.featuresets)
+ovs = OvrHandler(doc_op.featuresets)
 ovs.train_classifier()
 ovs.test_classifier()
-ovs.predict_for_random(doc_handler.random_document())
+import pdb; pdb.set_trace()
+ovs.predict_for_random(doc_op.random_document())
