@@ -13,7 +13,11 @@ class OvrHandler():
 
     def split_list(self, featuresets):
         half = int(len(featuresets)/2)
-        return featuresets[:half], featuresets[half:]
+        length = int(len(featuresets))
+        training_length = int(length / 100 * 90)
+        testing_length =  int(length / 100 * 10)
+
+        return featuresets[:training_length], featuresets[testing_length:]
 
     def prepare_scikit_x_and_y(self, labeled_featuresets):
         X, y = list(compat.izip(*labeled_featuresets))
