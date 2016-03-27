@@ -9,7 +9,7 @@ class WordProcessor():
         self.stemmer = PorterStemmer()
         self.vocabulary = self.top_words(self.freq_dist(self.make_vocabulary()))
 
-    def extract_words(self, document=None):
+    def tokenize(self, document=None):
         '''
         Take all documents content, tokenize it and put it in a `contents` variable
         '''
@@ -45,9 +45,9 @@ class WordProcessor():
 
     def make_vocabulary(self, document=None):
         if document:
-            vocabulary = self.extract_words(document)
+            vocabulary = self.tokenize(document)
         else:
-            vocabulary = self.extract_words()
+            vocabulary = self.tokenize()
 
         vocabulary = self.process(vocabulary)
 
