@@ -22,7 +22,6 @@ Topics and subtopics. Available at:
 
 https://www.gov.uk/topic
 
-
 # Data structure
 
 ## Database Entities
@@ -54,28 +53,27 @@ Document has many Subtopics
 
 # Project setup:
 
-## Requirements:
+## Principal requirements:
 
-- [Python 3](https://www.python.org/downloads/)
-- [pip](https://pypi.python.org/pypi/pip) for Python 3
+- [Python](https://www.python.org/downloads/) - Version > 3.3
+- [pip](https://pypi.python.org/pypi/pip)
 
-## Install packages:
+## Download and install required packages:
 
-From the root directoy, run:
+From the root directory, run:
 
 `pip3 install -r requirements.txt`
 
 ## Import data:
 
-From the root directoy, run:
+From the root directory, run:
 
 `python3 setup.py`
 
 The script will build the database, navigate GOV.UK's API and import the data into it.
 
-
 # Testing
 
-From the root directoy, run:
+From the root directory, run:
 
 `py.test`
