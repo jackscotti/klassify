@@ -23,33 +23,15 @@ Topics and subtopics. Available at:
 https://www.gov.uk/topic
 
 # Data structure
-
 ## Database Entities
 
-Topic
-- title       = Column(String)
-- base_path   = Column(String)
-- description = Column(String)
-- Subtopics
-
-Subtopic
-- title       = Column(String)
-- base_path   = Column(String)
-- description = Column(String)
-- Topic
-- Documents
-
-Document
-- title     = Column(String)
-- base_path = Column(String)
-- html      = Column(Text)
-- Subtopics
+![Data Model](/doc/img/data-model.png "Data Model")
 
 ## Relationships
 
-Topic has many Subtopics
-Subtopic has many Documents
-Document has many Subtopics
+- Topic has many Subtopics
+- Subtopic has many Documents
+- Document has many Subtopics
 
 # Project setup:
 
