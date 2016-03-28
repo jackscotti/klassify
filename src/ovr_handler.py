@@ -65,6 +65,7 @@ class OvrHandler():
             return
 
         for idx, label in enumerate(predicted_labels):
-            if predicted_labels[idx]:
+            confidence = round(float(probabilities[idx] * 100), 2)
+            if confidence > 10:
                 print(named_classes[idx] + " - Confidence: ", end="")
-                print(str(round(float(probabilities[idx] * 100), 2)) + "%")
+                print(str(confidence) + "%")
