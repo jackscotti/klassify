@@ -16,6 +16,15 @@ class Topic(Base):
     def __repr__(self):
         return "<Topic(title='%s', base_path='%s')>" % (self.title, self.base_path)
 
+    def documents(self):
+        documents = set()
+        for subtopic in self.subtopics:
+            for doc in subtopic.documents:
+                documents.add(doc)
+
+        return list(documents)
+
+
 # create association table (subtopic-documents)
 subtopics_documents = Table('subtopics_documents', Base.metadata,
     Column('subtopic_id', ForeignKey('subtopics.id'), primary_key=True),
@@ -72,3 +81,11 @@ class Document(Base):
 
     def __repr__(self):
         return "<Document(title=%r, base_path=%r)" % (self.title, self.base_path)
+
+    def topics(self):
+        topics = set()
+
+        for subtopic in self.subtopics:
+            topics.add(subtopic.topic)
+
+        return list(topics)

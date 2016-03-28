@@ -6,7 +6,7 @@ import sqlalchemy
 def test_db():
     database_name = "test_klassify"
 
-    DBH = DBHandler(database_name)
+    DBH = DBHandler(database_name, echo=False)
     session = DBH.session
     # create a topic, subtopic and document
     test_topic = Topic(title="HMRC", base_path="/hmrc")
@@ -56,6 +56,16 @@ def test_db():
     subtopics_titles = [subtopic.title for subtopic in documents_and_subtopics]
     assert test_subtopic_1.title in subtopics_titles
     assert test_subtopic_2.title in subtopics_titles
+
+    # Test Document->Topics relation
+    doc = session.query(Document).get(test_document_1.id)
+    topic = session.query(Topic).get(test_topic.id)
+    assert topic in doc.topics()
+
+    # Test Topic->Documents relation
+    doc = session.query(Document).get(test_document_1.id)
+    topic = session.query(Topic).get(test_topic.id)
+    assert doc in topic.documents()
 
     # test unique constraint on basepath
     clone_topic = Topic(title="Clone topic", base_path="/hmrc")
