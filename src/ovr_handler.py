@@ -15,7 +15,7 @@ class OvrHandler():
         half = int(len(featuresets)/2)
         length = int(len(featuresets))
         training_length = int(length / 100 * 80)
-        testing_length =  int(length / 100 * 20)
+        testing_length =  length - training_length
 
         return featuresets[:training_length], featuresets[testing_length:]
 
