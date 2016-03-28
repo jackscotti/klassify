@@ -61,6 +61,7 @@ def test_db():
     doc = session.query(Document).get(test_document_1.id)
     topic = session.query(Topic).get(test_topic.id)
     assert topic in doc.topics()
+    assert topic.title in doc.topic_titles()
 
     # Test Topic->Documents relation
     doc = session.query(Document).get(test_document_1.id)

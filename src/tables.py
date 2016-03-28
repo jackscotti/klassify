@@ -89,3 +89,6 @@ class Document(Base):
             topics.add(subtopic.topic)
 
         return list(topics)
+
+    def topic_titles(self):
+        return [topic.title for topic in self.topics()]

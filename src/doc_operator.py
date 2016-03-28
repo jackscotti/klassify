@@ -38,17 +38,10 @@ class DocumentOperator():
         for topic in self.topics:
             for subtopic in topic.subtopics:
                 for doc in subtopic.documents:
-                    doc_labels = self.find_doc_topics(doc)
+                    doc_labels = doc.topic_titles()
                     docs_with_labels.append([doc, doc_labels])
 
         return docs_with_labels
-
-    def find_doc_topics(self, doc):
-        labels = []
-        for subtopic in doc.subtopics:
-            if (subtopic.topic.title in self.labels) and (subtopic.topic.title not in labels):
-                labels.append(subtopic.topic.title)
-        return labels
 
     def build_feature_sets(self):
         document_set_with_category = self.docs_with_labels
