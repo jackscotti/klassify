@@ -19,7 +19,7 @@ def test_tokenize():
 
 def test_make_vocabulary():
     # without document
-    assert PROCESSOR.make_vocabulary() == ['test', 'document', 'one', 'test', 'document', 'two', 'test', 'document', 'three']
+    assert PROCESSOR.make_vocabulary() == ['test', 'one', 'test', 'two', 'test', 'three']
 
     # with document
     assert PROCESSOR.make_vocabulary(new_document) ==  ['differ', 'content', 'four']
@@ -27,9 +27,9 @@ def test_make_vocabulary():
 def test_bag_of_words():
     # This is built against the processor vocabulary.
     # The vocabulary is the sum of all the different terms in all the documents provided at instantiation.
-    assert PROCESSOR.bag_of_words(initial_document_3) == {'document': True, 'one': False, 'test': True, 'three': True, 'two': False}
+    assert PROCESSOR.bag_of_words(initial_document_3) == {'one': False, 'test': True, 'three': True, 'two': False}
 
-    assert PROCESSOR.bag_of_words(new_document) == {'document': False, 'one': False, 'test': False, 'three': False, 'two': False}
+    assert PROCESSOR.bag_of_words(new_document) == {'one': False, 'test': False, 'three': False, 'two': False}
 
 def test_process():
     # What will be filtered out:
