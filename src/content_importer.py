@@ -56,8 +56,7 @@ class ContentImporter(object):
             count += 1
             if count % 250 == 0: print("Documents processed: %d/%d" %(count, len(documents)))
 
-#  extract document content
-    def import_documents_content(self):
+    def extract_documents_content(self):
         documents = self.DBH.session.query(Document).all()
 
         count = 0
