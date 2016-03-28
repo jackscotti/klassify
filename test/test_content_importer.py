@@ -34,12 +34,9 @@ def test_cleaning_methods():
     page = IMPORTER.parse_page(doc.html)
 
     assert STRING_PRESENT_IN_BOTH_HEADER_AND_FOOTER in page.text
-    page = IMPORTER.remove_footer(page)
-    page = IMPORTER.remove_header(page)
-    assert STRING_PRESENT_IN_BOTH_HEADER_AND_FOOTER not in page.text
-
     assert STRING_PRESENT_IN_SCRIPT_TAG in page.text
-    page = IMPORTER.remove_script_tags(page)
+    page = IMPORTER.remove_unwanted_tags(page)
+    assert STRING_PRESENT_IN_BOTH_HEADER_AND_FOOTER not in page.text
     assert STRING_PRESENT_IN_SCRIPT_TAG not in page.text
 
     assert STRING_PRESENT_IN_TITLE in page.text
@@ -47,11 +44,6 @@ def test_cleaning_methods():
     assert STRING_PRESENT_IN_TITLE not in page.text
 
     page_content = IMPORTER.extract_page_content(page)
-
-    assert "\n" in page_content
-    page_content = IMPORTER.strip_new_lines(page_content)
-    assert "\n" not in page_content
-
     page_content = IMPORTER.remove_non_relevant_content(page_content)
     for phrase in IMPORTER.NON_RELEVANT_PHRASES:
         assert phrase not in page_content
@@ -65,12 +57,10 @@ def test_extract_content_single_method():
 
     assert STRING_PRESENT_IN_BOTH_HEADER_AND_FOOTER in doc.html
     assert STRING_PRESENT_IN_SCRIPT_TAG in doc.html
-    assert "\n" in doc.html
 
     clean_content = IMPORTER.extract_content(doc)
 
     assert STRING_PRESENT_IN_BOTH_HEADER_AND_FOOTER not in clean_content
     assert STRING_PRESENT_IN_SCRIPT_TAG not in clean_content
-    assert "\n" not in clean_content
     for phrase in IMPORTER.NON_RELEVANT_PHRASES:
         assert phrase not in clean_content

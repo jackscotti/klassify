@@ -56,7 +56,6 @@ class ContentImporter(object):
             count += 1
             if count % 250 == 0: print("Documents processed: %d/%d" %(count, len(documents)))
 
-
 #  extract document content
     def import_documents_content(self):
         documents = self.DBH.session.query(Document).all()
@@ -69,38 +68,23 @@ class ContentImporter(object):
             if count % 250 == 0: print("Documents processed: %d/%d" %(count, len(documents)))
 
     def extract_content(self, document):
-        # this could be optimised, each method runs through the content at least once
         page = self.parse_page(document.html)
-        page = self.remove_footer(page)
-        page = self.remove_header(page)
-        page = self.remove_script_tags(page)
+        page = self.remove_unwanted_tags(page)
         page = self.get_body(page)
 
         page_content = self.extract_page_content(page)
-        page_content = self.strip_new_lines(page_content)
         page_content = self.remove_non_relevant_content(page_content)
         page_content = self.remove_punctuaction_and_numbers(page_content)
         return page_content
 
-    def strip_new_lines(self, page):
-        return page.replace('\n', ' ')
-
     def get_body(self, page):
         return page.body
 
-    def remove_footer(self, page):
-        # Discard anything inside<footer></footer>
-        [s.extract() for s in page('footer')]
-        return page
+    def remove_unwanted_tags(self, page):
+        # Discard anything inside footer, script and header
+        for tag in page.find_all(['footer', 'script', 'header']):
+            tag.replace_with('')
 
-    def remove_script_tags(self, page):
-        # Discard anything inside <script></script>
-        [s.extract() for s in page('script')]
-        return page
-
-    def remove_header(self, page):
-        # Discard anything inside <header></header>
-        [s.extract() for s in page('header')]
         return page
 
     def remove_non_relevant_content(self, page):
