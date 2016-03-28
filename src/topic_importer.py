@@ -3,7 +3,11 @@ from .tables import Topic, Subtopic
 from .db_handler import DBHandler
 
 class TopicImporter:
-    def make_topic_model(self, topic_data):
+    def __init__(self):
+        self.session = DBHandler(echo=False).session
+        self.API_URL = "https://www.gov.uk/api/content"
+
+    def make_topic(self, topic_data):
         return Topic(
             title=topic_data["title"],
             base_path=topic_data["base_path"],
@@ -12,7 +16,7 @@ class TopicImporter:
             description=topic_data["description"]
         )
 
-    def make_subtopic_model(self, subtopic_data):
+    def make_subtopic(self, subtopic_data):
         return Subtopic(
             title=subtopic_data["title"],
             base_path=subtopic_data["base_path"],
@@ -24,39 +28,26 @@ class TopicImporter:
     def associate_topic_subtopics(self, topic, subtopics):
         topic.subtopics = subtopics
 
-    # Loop through topics
-    # Loops through subtopics
-    # Assign them to their parents
-    # Save all
     def run(self):
-        # to refactor
-        # add an initialiser
-        DBH = DBHandler()
-        session = DBH.session
-
-        API_URL = "https://www.gov.uk/api/content"
-        root = requests.get(API_URL + "/topic").json()
-
+        root = requests.get(self.API_URL + "/topic").json()
         topics_json = root["links"]["children"]
+
         topics = []
-
         for topic_json in topics_json:
-            topic_base_path = topic_json["base_path"]
-            subtopics_json = requests.get(API_URL + topic_base_path).json()
-            subtopics_json = subtopics_json["links"]["children"]
-
-            topic = self.make_topic_model(topic_json)
             print("Creating topic:" + topic_json["base_path"])
+            topic = self.make_topic(topic_json)
             topics.append(topic)
 
-            subtopics = []
+            topic_base_path = topic_json["base_path"]
+            topic_data = requests.get(self.API_URL + topic_base_path).json()
+            subtopics_json = topic_data["links"]["children"]
 
+            subtopics = []
             for subtopic_json in subtopics_json:
-                subtopics.append(self.make_subtopic_model(subtopic_json))
                 print("Creating subtopic:" + subtopic_json["base_path"])
+                subtopics.append(self.make_subtopic(subtopic_json))
                 self.associate_topic_subtopics(topic, subtopics)
 
-        session.add_all(topics)
-        session.add_all(subtopics)
-        # TODO: edit this to commit/update only when items are new or changed
-        session.commit()
+        self.session.add_all(topics)
+        self.session.add_all(subtopics)
+        self.session.commit()

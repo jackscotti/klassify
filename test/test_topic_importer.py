@@ -3,10 +3,10 @@ from klassify.src.tables import Topic, Subtopic
 
 IMPORTER = TopicImporter()
 
-def test_make_topic_model():
+def test_make_topic():
     topic_fixture = {'base_path': '/topic/working-sea', 'web_url': 'https://www.gov.uk/topic/working-sea', 'content_id': '077826e8-f094', 'description': 'List of information about Working at sea.', 'title': 'Working at sea', 'api_url': 'https://www.gov.uk/api/content/topic/working-sea'}
 
-    created_topic = IMPORTER.make_topic_model(topic_fixture)
+    created_topic = IMPORTER.make_topic(topic_fixture)
 
     expected_topic = Topic(
         title='Working at sea',
@@ -22,10 +22,10 @@ def test_make_topic_model():
     assert created_topic.api_url == expected_topic.api_url
     assert created_topic.description == expected_topic.description
 
-def test_make_subtopic_model():
+def test_make_subtopic():
     subtopic_fixture = {'content_id': '6382617d-a2c5-4651-b487-5d267dfc6662', 'locale': 'en', 'base_path': '/topic/working-sea/health-safety', 'description': 'List of information about Health and safety.', 'api_url': 'https://www.gov.uk/api/content/topic/working-sea/health-safety', 'title': 'Health and safety', 'web_url': 'https://www.gov.uk/topic/working-sea/health-safety'}
 
-    created_subtopic = IMPORTER.make_topic_model(subtopic_fixture)
+    created_subtopic = IMPORTER.make_topic(subtopic_fixture)
 
     expected_subtopic = Subtopic(
         title='Health and safety',
