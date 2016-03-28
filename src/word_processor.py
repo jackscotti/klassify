@@ -21,7 +21,8 @@ class WordProcessor():
         return [token for doc in documents for token in word_tokenize(doc.content)]
 
     def process(self, vocabulary):
-        ADDITIONAL_STOP_WORDS = {"-", ".", ",", "if", "good", "what", "within", "https", ".mb"}
+        ADDITIONAL_STOP_WORDS = {'january', 'please', 'https', 'email', 'detail', 'email', 'send', 'if', 'december', 'october', 'kb', 'february', 'within', 'november', 'may', 'please', '.mb', 'what', 'pdf', 'june', 'mach', 'good', 'august', 'september', 'html', 'july', 'beta', 'document', 'eg', 'published', 'april'}
+
         stop_words = set(stopwords.words("english"))
 
         processed_words = []
