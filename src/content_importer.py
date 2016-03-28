@@ -4,6 +4,10 @@ from bs4 import BeautifulSoup
 import requests
 import time
 
+# TODO:
+# To tune the features of the document:
+# - Each document has a description, should be added to the content. Maybe with a multiplier * 2-3
+# - Also topic and subtopic descriptions should be added to the content, also with a multiplier
 class ContentImporter(object):
     def __init__(self, db_name="klassify"):
         self.DBH = DBHandler(db_name, echo=False)
@@ -28,6 +32,9 @@ class ContentImporter(object):
             "If you use assistive technology and need a version of this document in a more accessible format",
             "tell us what format you need It will help us if you say what assistive technology you use",
             "Request a different format",
+            "What you were doing",
+            "What went wrong",
+            "uses cookies to make the site simpler."
         ]
 
     def parse_page(self, page):
@@ -50,6 +57,7 @@ class ContentImporter(object):
             if count % 250 == 0: print("Documents processed: %d/%d" %(count, len(documents)))
 
 
+#  extract document content
     def import_documents_content(self):
         documents = self.DBH.session.query(Document).all()
 
@@ -61,6 +69,7 @@ class ContentImporter(object):
             if count % 250 == 0: print("Documents processed: %d/%d" %(count, len(documents)))
 
     def extract_content(self, document):
+        # this could be optimised, each method runs through the content at least once
         page = self.parse_page(document.html)
         page = self.remove_footer(page)
         page = self.remove_header(page)
