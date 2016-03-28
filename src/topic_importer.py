@@ -33,8 +33,9 @@ class TopicImporter:
         topics_json = root["links"]["children"]
 
         topics = []
+        print("Importing topics and subtopics", end="", flush=True)
         for topic_json in topics_json:
-            print("Creating topic:" + topic_json["base_path"])
+            print('.', end="", flush=True)
             topic = self.make_topic(topic_json)
             topics.append(topic)
 
@@ -44,10 +45,10 @@ class TopicImporter:
 
             subtopics = []
             for subtopic_json in subtopics_json:
-                print("Creating subtopic:" + subtopic_json["base_path"])
                 subtopics.append(self.make_subtopic(subtopic_json))
                 self.associate_topic_subtopics(topic, subtopics)
 
         self.session.add_all(topics)
         self.session.add_all(subtopics)
         self.session.commit()
+        print("\nComplete.")

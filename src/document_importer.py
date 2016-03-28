@@ -92,4 +92,4 @@ class DocumentImporter(object):
 
         self.DBH.session.close()
 
-        print("Documents with duplicates that have been ignored: %d", duplicate_documents)
+        print("Documents with duplicates that have been ignored: %d" % len(duplicate_documents))
