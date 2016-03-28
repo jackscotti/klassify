@@ -6,7 +6,7 @@ import time
 
 class ContentImporter(object):
     def __init__(self, db_name="klassify"):
-        self.DBH = DBHandler(db_name)
+        self.DBH = DBHandler(db_name, echo=False)
         self.ROOT_URL = "https://www.gov.uk"
         self.NON_RELEVANT_PHRASES = [
             "Skip to main content",
@@ -21,27 +21,13 @@ class ContentImporter(object):
             "find out more about beta services",
             "Return to top ↑",
             "Find out more about cookies",
-            "Beta",
             "GOV.UK",
-            "email",
-            "Email",
-            "eg",
-            "PDF",
-            "KB",
-            "Send",
             "Don’t include personal or financial information",
-            "HTML",
             "Help us improve",
-            "Detail",
-            "Document",
             "This file may not be suitable for users of assistive technology"
             "If you use assistive technology and need a version of this document in a more accessible format",
             "tell us what format you need It will help us if you say what assistive technology you use",
-            "please",
-            "Please",
             "Request a different format",
-            "Published",
-            "November", "December", "January", "February", "Mach", "April", "May", "June", "July", "August", "September", "October", "November", "December",
         ]
 
     def parse_page(self, page):
@@ -53,27 +39,26 @@ class ContentImporter(object):
 
     def import_documents_html(self):
         documents = self.DBH.session.query(Document).all()
-        count = len(documents)
 
+        count = 0
         for doc in documents:
             if doc.html == None:
                 time.sleep(0.20)
                 doc.html = requests.get(doc.web_url).text
                 self.DBH.session.commit()
-            print(doc.web_url)
-            count = count - 1
-            print("Documents left: %s" % count)
+            count += 1
+            if count % 250 == 0: print("Documents processed: %d/%d" %(count, len(documents)))
+
 
     def import_documents_content(self):
         documents = self.DBH.session.query(Document).all()
-        count = len(documents)
 
+        count = 0
         for doc in documents:
             doc.content = self.extract_content(doc)
             self.DBH.session.commit()
-            print(doc.web_url)
-            count = count - 1
-            print("Documents left: %s" % count)
+            count += 1
+            if count % 250 == 0: print("Documents processed: %d/%d" %(count, len(documents)))
 
     def extract_content(self, document):
         page = self.parse_page(document.html)
