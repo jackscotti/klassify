@@ -39,10 +39,8 @@ class DocumentOperator():
     def docs_with_labels(self):
         docs_with_labels = []
         for topic in self.topics:
-            for subtopic in topic.subtopics:
-                for doc in subtopic.documents:
-                    doc_labels = doc.topic_titles()
-                    docs_with_labels.append([doc, doc_labels])
+            for doc, labels in topic.documents_with_labels():
+                docs_with_labels.append([doc, labels])
 
         return docs_with_labels
 
