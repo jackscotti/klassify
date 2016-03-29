@@ -1,23 +1,26 @@
-from src.db_handler import DBHandler
-from src.tables import Topic, Subtopic, Document
+from .db_handler import DBHandler
+from .tables import Topic, Subtopic, Document
 from .word_processor import WordProcessor
 import random
 
 class DocumentOperator():
-    def __init__(self, n=3):
-        self.DBH = DBHandler(echo=False)
-        self.topics = self.pick_random_topics(n)
-        self.labels = [topic.title for topic in self.topics]
+    def __init__(self, db_name="klassify", n=3, min_docs=None):
+        self.DBH = DBHandler(db_name=db_name, echo=False)
+        self.topics = self.pick_random_topics(n, min_docs)
         self.docs_with_labels = self.docs_with_labels()
-        print("Topics selected:")
-        print(self.labels)
         self.featuresets = []
         self.processor = WordProcessor([doc for doc, cat in self.docs_with_labels])
 
-    def pick_random_topics(self, n):
+    def pick_random_topics(self, n, min_docs):
         topics = self.DBH.session.query(Topic).all()
+        # select only topics with more than 100 documents
+        if min_docs:
+            topics = [topic for topic in topics if len(topic.documents()) > min_docs]
+
         random.shuffle(topics)
         topics = topics[:n]
+        print("Topics selected:")
+        print([topic.title for topic in topics])
         return topics
 
     def find_random_doc_by_title(self, title):
