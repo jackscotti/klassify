@@ -8,7 +8,7 @@ database_name = "test_klassify"
 if os.path.exists("%s.db" % database_name):
     os.remove("%s.db" % database_name)
 
-def test_tokenize():
+def test_docs_with_labels():
     document_1 = Document(title="Test title 1", base_path="/test-1", content="This is a test document - one")
     document_2 = Document(title="Test title 2", base_path="/test-2", content="This is a test document - two")
 
