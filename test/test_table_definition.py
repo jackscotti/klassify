@@ -67,6 +67,7 @@ def test_db():
     doc = session.query(Document).get(test_document_1.id)
     topic = session.query(Topic).get(test_topic.id)
     assert doc in topic.documents()
+    assert doc, topic.title in topic.documents_with_labels()
 
     # test unique constraint on basepath
     clone_topic = Topic(title="Clone topic", base_path="/hmrc")

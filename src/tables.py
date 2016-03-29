@@ -24,6 +24,11 @@ class Topic(Base):
 
         return list(documents)
 
+    def documents_with_labels(self):
+        doc_with_labels = []
+        for doc in self.documents():
+            doc_with_labels.append([doc, doc.topic_titles()])
+        return doc_with_labels
 
 # create association table (subtopic-documents)
 subtopics_documents = Table('subtopics_documents', Base.metadata,
