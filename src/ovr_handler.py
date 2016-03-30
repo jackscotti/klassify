@@ -3,6 +3,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.feature_extraction import DictVectorizer
+from sklearn import metrics
 
 class OvrHandler():
     def __init__(self, featuresets):
@@ -36,12 +37,10 @@ class OvrHandler():
         self.classifier.fit(X, y)
 
     def test_classifier(self):
-        try:
-            X, y = self.prepare_scikit_x_and_y(self.testing_sets)
-            print("Classifier accuracy against test data:", str(round(float(self.classifier.score(X, y) * 100), 2)) + "%")
-        except Exception:
-            # this raises because of inconsistent shapes, still need to find out why
-            import pdb; pdb.set_trace()
+        X, y = self.prepare_scikit_x_and_y(self.testing_sets)
+        y_pred = self.classifier.predict(X)
+        accuracy = metrics.accuracy_score(y, y_pred)
+        print("Accuracy: " + str(round(float(accuracy),4) * 100) + "%")
 
     def predict_for_random(self, doc_with_bag_of_words):
         doc, bag_of_words = doc_with_bag_of_words
@@ -52,7 +51,6 @@ class OvrHandler():
             current_labels.append(subtopic.topic.title)
 
         print(set(current_labels))
-
         print("====> Predictions:")
 
         X = self._vectorizer.fit_transform(bag_of_words)

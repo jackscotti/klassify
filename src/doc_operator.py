@@ -7,20 +7,19 @@ class DocumentOperator():
     def __init__(self, db_name="klassify", n=3, min_docs=None):
         self.DBH = DBHandler(db_name=db_name, echo=False)
         self.topics = self.pick_random_topics(n, min_docs)
+        print("Topics selected:")
+        print([topic.title for topic in self.topics])
+        self.topic_labels = [topic.title for topic in self.topics]
         self.docs_with_labels = self.docs_with_labels()
         self.featuresets = []
         self.processor = WordProcessor([doc for doc, cat in self.docs_with_labels])
 
     def pick_random_topics(self, n, min_docs):
         topics = self.DBH.session.query(Topic).all()
-        # select only topics with more than 100 documents
         if min_docs:
             topics = [topic for topic in topics if len(topic.documents()) > min_docs]
-
         random.shuffle(topics)
         topics = topics[:n]
-        print("Topics selected:")
-        print([topic.title for topic in topics])
         return topics
 
     def find_random_doc_by_title(self, title):
@@ -39,8 +38,13 @@ class DocumentOperator():
     def docs_with_labels(self):
         docs_with_labels = []
         for topic in self.topics:
-            for doc, labels in topic.documents_with_labels():
-                docs_with_labels.append([doc, labels])
+            for doc, doc_labels in topic.documents_with_labels():
+                filtered_labels = []
+                for label in doc_labels:
+                    # Filter out labels that are not the selected topics
+                     if label in self.topic_labels:
+                         filtered_labels.append(label)
+                docs_with_labels.append([doc, filtered_labels])
 
         return docs_with_labels
 
@@ -51,7 +55,7 @@ class DocumentOperator():
         count = 0
         for (document, category) in document_set_with_category:
             count = count + 1
-            if (count % 100 == 0): print("Processing %d of %d" % (count, len(document_set_with_category)))
+            if (count % 250 == 0): print("Processing %d of %d" % (count, len(document_set_with_category)))
             self.featuresets.append([self.baggify_document(document), category])
 
     def baggify_document(self, doc):
