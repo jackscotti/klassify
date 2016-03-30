@@ -3,11 +3,12 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.feature_extraction import DictVectorizer
-from sklearn import metrics
+from sklearn import cross_validation
 
 class OvrHandler():
     def __init__(self, featuresets):
         self.mlb = MultiLabelBinarizer()
+        self.featuresets = featuresets
         self.training_featuresets, self.testing_sets = self.split_list(featuresets)
         self._vectorizer = DictVectorizer(dtype=float, sparse=True)
         self.classifier = OneVsRestClassifier(MultinomialNB())
@@ -33,14 +34,15 @@ class OvrHandler():
         return X, y
 
     def train_classifier(self):
-        X, y = self.prepare_scikit_x_and_y(self.training_featuresets)
+        X, y = self.prepare_scikit_x_and_y(self.featuresets)
         self.classifier.fit(X, y)
 
     def test_classifier(self):
-        X, y = self.prepare_scikit_x_and_y(self.testing_sets)
-        y_pred = self.classifier.predict(X)
-        accuracy = metrics.accuracy_score(y, y_pred)
-        print("Accuracy: " + str(round(float(accuracy),4) * 100) + "%")
+        X, y = self.prepare_scikit_x_and_y(self.featuresets)
+        scores = cross_validation.cross_val_score(
+            self.classifier, X, y, cv=10
+        )
+        print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
     def predict_for_random(self, doc_with_bag_of_words):
         doc, bag_of_words = doc_with_bag_of_words
