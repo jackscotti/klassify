@@ -2,7 +2,7 @@ pytest==2.8.7
 SQLAlchemy==1.0.12
 beautifulsoup4==4.4.1
 responses==0.5.1
-nltk==3.2
 numpy==1.10.4
 scipy==0.17.0
+nltk==3.2
 scikit-learn==0.17.1

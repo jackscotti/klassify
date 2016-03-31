@@ -1,3 +1,8 @@
+# Install nltk modules
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+
 from src.topic_importer import TopicImporter
 from src.document_importer import DocumentImporter
 from src.content_importer import ContentImporter
