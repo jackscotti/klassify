@@ -4,9 +4,10 @@ from .word_processor import WordProcessor
 import random
 
 class DocumentOperator():
-    def __init__(self, db_name="klassify", n=3, min_docs=None):
+    def __init__(self, db_name="klassify", n=3, min_docs=None, max_docs=None):
         self.DBH = DBHandler(db_name=db_name, echo=False)
         self.topics = self.pick_random_topics(n, min_docs)
+        self.max_docs = max_docs
         print("Topics selected:")
         print([topic.title for topic in self.topics])
         self.topic_labels = [topic.title for topic in self.topics]
@@ -36,17 +37,24 @@ class DocumentOperator():
         return doc, bag_of_words
 
     def docs_with_labels(self):
-        docs_with_labels = []
+        docs_with_filtered_labels = []
+
         for topic in self.topics:
-            for doc, doc_labels in topic.documents_with_labels():
+            docs_with_labels = topic.documents_with_labels()
+
+            if self.max_docs:
+                random.shuffle(docs_with_labels)
+                docs_with_labels = docs_with_labels[:self.max_docs]
+
+            for doc, doc_labels in docs_with_labels:
                 filtered_labels = []
                 for label in doc_labels:
                     # Filter out labels that are not the selected topics
                      if label in self.topic_labels:
                          filtered_labels.append(label)
-                docs_with_labels.append([doc, filtered_labels])
+                docs_with_filtered_labels.append([doc, filtered_labels])
 
-        return docs_with_labels
+        return docs_with_filtered_labels
 
     def build_feature_sets(self):
         document_set_with_category = self.docs_with_labels
