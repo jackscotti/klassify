@@ -27,6 +27,11 @@ https://www.gov.uk/topic
 
 ![Data Model](/doc/img/data-model.png "Data Model")
 
+## Sequence diagrams
+### setup.py
+
+![setup.py](/doc/img/uml_setup.png "setup.py")
+
 ## Relationships
 
 - Topic has many Subtopics
