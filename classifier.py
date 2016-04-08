@@ -1,20 +1,37 @@
 from src.doc_operator import DocumentOperator
 from src.ovr_handler import OvrHandler
 
-count = 0
+all_results = {
+    "BernoulliNB": {"cross score": [], "cross precision": [], "precision": [], "recall": [], "f1": []},
+    "MultinomialNB": {"cross score": [], "cross precision": [], "precision": [], "recall": [], "f1": []}
+}
 
-while count < 1:
-    doc_op = DocumentOperator(n=5, min_docs=400, max_docs=500)
+def add_results(base, to_add):
+    for algo_type, results in to_add.items():
+        for result, value in results.items():
+            base[algo_type][result].append(value)
+    return base
+
+def calculate_averages(all_results):
+    for algo_type, results in all_results.items():
+        print(algo_type + ":")
+        for result, values in results.items():
+            print("%s: %1.3f" % (result, (sum(values) / len(values))))
+
+count = 1
+while count <= 100:
+    print("#%d:" % count)
+    doc_op = DocumentOperator(n=5, min_docs=400, max_docs=400)
     doc_op.build_feature_sets()
 
     ovs = OvrHandler(doc_op.featuresets)
-    ovs.train_classifiers()
-    ovs.test_classifiers()
+
+    test_results = ovs.test_classifiers()
+    accuracy_results = ovs.calculate_accuracy()
+    to_add = {}
+    to_add["BernoulliNB"] =  dict(list(test_results["BernoulliNB"].items()) + list(accuracy_results["BernoulliNB"].items()))
+    to_add["MultinomialNB"] =  dict(list(test_results["MultinomialNB"].items()) + list(accuracy_results["MultinomialNB"].items()))
+    all_results = add_results(all_results, to_add)
     count += 1
 
-ovs.predict_for_random(doc_op.random_document())
-
-# TODO
-# - split training/testing data 80-20 http://stackoverflow.com/questions/13610074/is-there-a-rule-of-thumb-for-how-to-divide-a-dataset-into-training-and-validatio http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.33.1337&rep=rep1&type=pdf https://en.wikipedia.org/wiki/Pareto_principle
-# - replace synonims
-# - Replacing negations with antonyms
+calculate_averages(all_results)

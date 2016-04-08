@@ -25,7 +25,6 @@ loop N of documents
     DBHandler->db: save to db
 end
 
-
 ContentImporter->ContentImporter: .extract_documents_content()
 loop N of documents
     ContentImporter->ContentImporter: .extract_content()

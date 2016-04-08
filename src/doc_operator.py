@@ -63,7 +63,6 @@ class DocumentOperator():
         count = 0
         for (document, category) in document_set_with_category:
             count = count + 1
-            if (count % 250 == 0): print("Processing %d of %d" % (count, len(document_set_with_category)))
             self.featuresets.append([self.baggify_document(document), category])
 
     def baggify_document(self, doc):
