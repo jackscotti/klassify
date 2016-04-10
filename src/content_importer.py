@@ -50,7 +50,7 @@ class ContentImporter(object):
         count = 0
         for doc in documents:
             if doc.html == None:
-                time.sleep(0.20)
+                time.sleep(0.75)
                 doc.html = requests.get(doc.web_url).text
                 self.DBH.session.commit()
             count += 1
