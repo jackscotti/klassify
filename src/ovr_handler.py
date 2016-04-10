@@ -45,7 +45,7 @@ class OvrHandler():
             scores = cross_validation.cross_val_score(
                 clf, self.X, self.y, cv=10
             )
-            results[name] = {"cross score": scores.mean(), "cross precision": scores.std() * 2}
+            results[name] = {"cross score": scores.mean(), "cross variance": scores.std() * 2}
         return results
 
     def calculate_accuracy(self):

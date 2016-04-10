@@ -4,7 +4,7 @@ from .word_processor import WordProcessor
 import random
 
 class DocumentOperator():
-    def __init__(self, db_name="klassify", n=3, min_docs=None, max_docs=None):
+    def __init__(self, db_name="klassify", n=3, min_docs=None, max_docs=None, n_features=None):
         self.DBH = DBHandler(db_name=db_name, echo=False)
         self.topics = self.pick_random_topics(n, min_docs)
         self.max_docs = max_docs
@@ -13,7 +13,7 @@ class DocumentOperator():
         self.topic_labels = [topic.title for topic in self.topics]
         self.docs_with_labels = self.docs_with_labels()
         self.featuresets = []
-        self.processor = WordProcessor([doc for doc, cat in self.docs_with_labels])
+        self.processor = FeatureExtractor([doc for doc, cat in self.docs_with_labels], n_features)
 
     def pick_random_topics(self, n, min_docs):
         topics = self.DBH.session.query(Topic).all()
