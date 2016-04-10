@@ -3,16 +3,15 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import nltk
 
-class WordProcessor():
-    def __init__(self, documents):
+class FeatureExtractor():
+    def __init__(self, documents, n_features=1000):
         self.documents = documents
         self.stemmer = PorterStemmer()
-        self.vocabulary = self.top_words(self.freq_dist(self.make_vocabulary()))
+        self.vocabulary = self.top_words(n_features, self.freq_dist(self.make_vocabulary()))
+        print("selected vocabulary length:")
+        print(len(self.vocabulary))
 
     def tokenize(self, document=None):
-        '''
-        Take all documents content, tokenize it and put it in a `contents` variable
-        '''
         if document:
             documents = [document]
         else:
@@ -64,9 +63,9 @@ class WordProcessor():
         return bag_of_words
 
     def freq_dist(self, vocabulary):
+        print("Vocabulary length:")
+        print(len(vocabulary))
         return nltk.FreqDist(vocabulary)
 
-    def top_words(self, freq_dist, number=500):
-        # problem number one: this creates a long list
-        # number of features needs to be reduced
-        return list(freq_dist.keys())[:number]
+    def top_words(self, n_features, freq_dist):
+        return list(freq_dist.keys())[:n_features]

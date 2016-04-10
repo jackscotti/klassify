@@ -1,6 +1,6 @@
 from .db_handler import DBHandler
 from .tables import Topic, Subtopic, Document
-from .word_processor import WordProcessor
+from .feature_extractor import FeatureExtractor
 import random
 
 class DocumentOperator():
