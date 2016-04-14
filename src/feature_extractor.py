@@ -4,12 +4,10 @@ from nltk.stem import PorterStemmer
 import nltk
 
 class FeatureExtractor():
-    def __init__(self, documents, n_features=1000):
+    def __init__(self, documents, n_features=5000):
         self.documents = documents
         self.stemmer = PorterStemmer()
         self.vocabulary = self.top_words(n_features, self.freq_dist(self.make_vocabulary()))
-        print("selected vocabulary length:")
-        print(len(self.vocabulary))
 
     def tokenize(self, document=None):
         if document:
@@ -20,7 +18,11 @@ class FeatureExtractor():
         return [token for doc in documents for token in word_tokenize(doc.content)]
 
     def process(self, vocabulary):
-        ADDITIONAL_STOP_WORDS = {'january', 'please', 'https', 'email', 'detail', 'email', 'send', 'if', 'december', 'october', 'kb', 'february', 'within', 'november', 'may', 'please', '.mb', 'what', 'pdf', 'june', 'mach', 'good', 'august', 'september', 'html', 'july', 'beta', 'document', 'eg', 'published', 'april'}
+        ADDITIONAL_STOP_WORDS = {'january', 'please', 'https', 'email',
+            'detail', 'email', 'send', 'if', 'december', 'october', 'kb',
+            'february', 'within', 'november', 'may', 'please', '.mb', 'what',
+            'pdf', 'june', 'mach', 'good', 'august', 'september', 'html',
+            'july', 'beta', 'document', 'eg', 'published', 'april'}
 
         stop_words = set(stopwords.words("english"))
 
