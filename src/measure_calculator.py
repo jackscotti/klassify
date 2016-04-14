@@ -32,10 +32,12 @@ class MeasureCalculator():
             print(algo_type + ":")
             cross_score = (sum(results["cross score"]) / len(results["cross score"]))
             cross_precision = (sum(results["cross variance"]) / len(results["cross variance"]))
-            print("Cross evaluation accuracy: %1.3f (+/- %1.3f)" % (cross_score, cross_precision))
 
+            # Print out average of cross eval measure along with its variance
+            print("Cross evaluation accuracy: %1.3f (+/- %1.3f)" % (cross_score, cross_precision))
             results.pop("cross score")
             results.pop(("cross variance"))
 
             for result, values in results.items():
+                # Print out averages of all remaining measures
                 print("%s: %1.3f" % (result, (sum(values) / len(values))))
