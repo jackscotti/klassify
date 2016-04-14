@@ -9,21 +9,21 @@ class MeasureCalculator():
             "MultinomialNB": {"cross score": [], "cross variance": [], "precision": [], "recall": [], "f1": []}
         }
 
-    def add_results(self, cross_validation_results, accuracy_results):
-        measures = self.combine_results(cross_validation_results, accuracy_results)
+    def add_measures(self, cross_validation_measures, accuracy_measures):
+        measures = self.combine_measures(cross_validation_measures, accuracy_measures)
         for algo_type, results in measures.items():
             for result, value in results.items():
                 self.measures[algo_type][result].append(value)
 
-    def combine_results(self, cross_validation_results, accuracy_results):
+    def combine_measures(self, cross_validation_measures, accuracy_measures):
         current_measures = {}
-        current_measures["BernoulliNB"] =  dict(list(cross_validation_results["BernoulliNB"].items())
-            + list(accuracy_results["BernoulliNB"].items()))
-        current_measures["MultinomialNB"] =  dict(list(cross_validation_results["MultinomialNB"].items())
-            + list(accuracy_results["MultinomialNB"].items()))
+        current_measures["BernoulliNB"] =  dict(list(cross_validation_measures["BernoulliNB"].items())
+            + list(accuracy_measures["BernoulliNB"].items()))
+        current_measures["MultinomialNB"] =  dict(list(cross_validation_measures["MultinomialNB"].items())
+            + list(accuracy_measures["MultinomialNB"].items()))
         return current_measures
 
-    def averaged_results(self):
+    def averaged_measures(self):
         for algo_type, results in self.measures.items():
             print(algo_type + ":")
             cross_score = (sum(results["cross score"]) / len(results["cross score"]))
@@ -45,13 +45,13 @@ while count <= 20:
 
     ovs = OvrHandler(doc_op.featuresets)
 
-    cross_validation_results = ovs.cross_validate()
-    accuracy_results = ovs.calculate_accuracy()
+    cross_validation_measures = ovs.cross_validate()
+    accuracy_measures = ovs.calculate_accuracy()
 
-    calc.add_results(cross_validation_results, accuracy_results)
+    calc.add_measures(cross_validation_measures, accuracy_measures)
 
     count += 1
 
-calc.averaged_results()
+calc.averaged_measures()
 
 print("Total time: %0.2fs " % (time.time() - start_time))

@@ -39,7 +39,7 @@ class OvrHandler():
         for name, clf in self.classifiers.items():
             clf.fit(X, y)
 
-    def test_classifiers(self):
+    def cross_validate(self):
         results = {}
         for name, clf in self.classifiers.items():
             scores = cross_validation.cross_val_score(
