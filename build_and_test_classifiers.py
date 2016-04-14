@@ -5,9 +5,9 @@ import time
 
 calc = MeasureCalculator()
 start_time = time.time()
+
 count = 1
-while count <= 20:
-    print("#%d:" % count)
+while count <= 100:
     doc_op = DocumentOperator(n=5, min_docs=400, max_docs=400, n_features=7500)
     doc_op.build_feature_sets()
 
