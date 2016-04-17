@@ -1,18 +1,21 @@
+# Appendix C13 - test_content_importer.py
+
 from klassify.src.tables import Document
 from klassify.src.content_importer import ContentImporter
 import os
 import pytest
 
 database_name = "test_klassify"
-
 if os.path.exists("%s.db" % database_name):
     os.remove("%s.db" % database_name)
 
 DOCUMENT = Document(
     base_path = "/intelligent-machines",
     title = "The Intelligent Machines",
-    html = open("test/fixtures/document_page.html", 'r').read()
-)
+    html = open("test/fixtures/document_page.html", 'r').read())
+STRING_PRESENT_IN_BOTH_HEADER_AND_FOOTER = "How government works"
+STRING_PRESENT_IN_SCRIPT_TAG = "<![CDATA["
+STRING_PRESENT_IN_TITLE = "HM Revenue & Customs"
 
 def setup_module(module):
     global IMPORTER
@@ -23,14 +26,8 @@ def teardown_module(module):
     IMPORTER.DBH.session.close()
     IMPORTER.DBH.destroy_db_if_present()
 
-
-STRING_PRESENT_IN_BOTH_HEADER_AND_FOOTER = "How government works"
-STRING_PRESENT_IN_SCRIPT_TAG = "<![CDATA["
-STRING_PRESENT_IN_TITLE = "HM Revenue & Customs"
-
 def test_cleaning_methods():
     doc = IMPORTER.DBH.session.query(Document).first()
-
     page = IMPORTER.parse_page(doc.html)
 
     assert STRING_PRESENT_IN_BOTH_HEADER_AND_FOOTER in page.text

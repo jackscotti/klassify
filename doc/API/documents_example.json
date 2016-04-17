@@ -1,0 +1,33 @@
+{
+  results: [
+    {
+      description: "How to show MHRA you're meeting good practice",
+      format: "detailed_guidance",
+      link: "/guidance/good-practice-for-trials",
+      title: "Good practice for trials",
+      document_type: "edition"
+      specialist_sectors: [
+        {
+        title: "Good practice, inspections and enforcement",
+        slug: "medicines-medical-blood/practice",
+        link: "/topic/medicines-medical-blood/practice"
+        }
+      ],
+    },
+    {
+      description: "This notice explains partial exemption and the methods",
+      format: "publication",
+      link: "/government/publications/vat-notice-partial-exemption",
+      title: "VAT Notice: partial exemption",
+      document_type: "edition"
+      specialist_sectors: [
+        {
+          title: "VAT",
+          slug: "business-tax/vat",
+          link: "/topic/business-tax/vat"
+        },
+      ]
+    }
+    >>>> more results, omitted to fit in a page <<<<
+  ]
+}

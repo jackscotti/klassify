@@ -1,3 +1,5 @@
+# Appendix C1 - setup.py
+
 # Install nltk modules
 import nltk
 nltk.download('punkt')
@@ -9,7 +11,6 @@ from src.content_importer import ContentImporter
 import os
 
 database_name = "klassify"
-
 if os.path.exists("%s.db" % database_name):
     os.remove("%s.db" % database_name)
 

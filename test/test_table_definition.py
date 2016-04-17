@@ -1,3 +1,5 @@
+# Appendix C18 - test_table_definition.py
+
 from klassify.src.db_handler import DBHandler
 from klassify.src.tables import Topic, Subtopic, Document
 import pytest
@@ -12,9 +14,18 @@ def test_db():
     test_topic = Topic(title="HMRC", base_path="/hmrc")
     test_subtopic_1 = Subtopic(title="HMRC payments", base_path="/payments")
     test_subtopic_2 = Subtopic(title="HMRC refunds", base_path="/refunds")
-    test_document_1 = Document(title="Self assessment deadlines", base_path="/self-assessment", html="<strong>PAY NOW</strong>")
-    test_document_2 = Document(title="Starting a business", base_path="/start-business", html="<strong>START NOW</strong>")
-    test_document_3 = Document(title="Payment and refunds", base_path="/payments-and-refunds", html="<h1>payments and refunds</h1>")
+    test_document_1 = Document(
+        title="Self assessment deadlines",
+        base_path="/self-assessment",
+        html="<strong>PAY NOW</strong>")
+    test_document_2 = Document(
+        title="Starting a business",
+        base_path="/start-business",
+        html="<strong>START NOW</strong>")
+    test_document_3 = Document(
+        title="Payment and refunds",
+        base_path="/payments-and-refunds",
+        html="<h1>payments and refunds</h1>")
 
     # create relationships
     test_topic.subtopics    = [test_subtopic_1, test_subtopic_2]
@@ -72,7 +83,10 @@ def test_db():
     # test unique constraint on basepath
     clone_topic = Topic(title="Clone topic", base_path="/hmrc")
     clone_subtopic = Subtopic(title="Clone subtopic", base_path="/refunds")
-    clone_document = Document(title="Clone document", base_path="/payments-and-refunds", html="<h1>payments and refunds</h1>")
+    clone_document = Document(
+        title="Clone document",
+        base_path="/payments-and-refunds",
+        html="<h1>payments and refunds</h1>")
     clones = [clone_topic, clone_subtopic, clone_document]
     for clone in clones:
         with pytest.raises(sqlalchemy.exc.IntegrityError):

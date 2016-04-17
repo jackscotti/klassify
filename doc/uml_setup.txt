@@ -1,6 +1,7 @@
 title setup.py
 
 db->db: delete
+DBHandler->db: Build db tables
 TopicImporter->TopicImporter: .run()
 TopicImporter->GOV.UK API: Requests topics
 GOV.UK API->TopicImporter: Returns topics

@@ -1,0 +1,23 @@
+{
+  base_path: "/topic/working-sea",
+  title: "Working at sea",
+  links: {
+    children: [
+      {
+        title: "Training and certification",
+        base_path: "/topic/working-sea/training",
+        description: "List of information about Training",
+        api_url: "https://www.gov.uk/api/content/topic/working-sea/training",
+        web_url: "https://www.gov.uk/topic/working-sea/training",
+      },
+      {
+        title: "Medical certification and advice",
+        base_path: "/topic/working-sea/medical",
+        description: "List of information about Medical certification",
+        api_url: "https://www.gov.uk/api/content/topic/working-sea/medical",
+        web_url: "https://www.gov.uk/topic/working-sea/medical",
+      },
+      >>>> more results, omitted to fit in a page <<<<
+    ]
+  }
+}

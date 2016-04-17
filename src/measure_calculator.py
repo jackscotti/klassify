@@ -1,11 +1,21 @@
+# Appendix C9 - measure_calculator.py
+
 class MeasureCalculator():
     def __init__(self):
         self.measures = {
             "BernoulliNB": {
-                "cross score": [], "cross variance": [], "precision": [], "recall": [], "f1": []
+                "cross score": [],
+                "cross variance": [],
+                "precision": [],
+                "recall": [],
+                "f1": []
             },
             "MultinomialNB": {
-                "cross score": [], "cross variance": [], "precision": [], "recall": [], "f1": []
+                "cross score": [],
+                "cross variance": [],
+                "precision": [],
+                "recall": [],
+                "f1": []
             }
         }
 

@@ -1,3 +1,5 @@
+# Appendix C8 - build_and_train_classifiers.py
+
 from src.doc_operator import DocumentOperator
 from src.ovr_handler import OvrHandler
 from src.measure_calculator import MeasureCalculator

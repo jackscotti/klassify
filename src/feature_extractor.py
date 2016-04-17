@@ -1,3 +1,5 @@
+# Appendix C5 - feature_extractor.py
+
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
@@ -18,16 +20,10 @@ class FeatureExtractor():
         return [token for doc in documents for token in word_tokenize(doc.content)]
 
     def process(self, vocabulary):
-        ADDITIONAL_STOP_WORDS = {'january', 'please', 'https', 'email',
-            'detail', 'email', 'send', 'if', 'december', 'october', 'kb',
-            'february', 'within', 'november', 'may', 'please', '.mb', 'what',
-            'pdf', 'june', 'mach', 'good', 'august', 'september', 'html',
-            'july', 'beta', 'document', 'eg', 'published', 'april'}
-
+        ADDITIONAL_STOP_WORDS = {'january', 'please', 'https', 'email', 'detail', 'email', 'send', 'if', 'december', 'october', 'kb', 'february', 'within', 'november', 'may', 'please', '.mb', 'what', 'pdf', 'june', 'mach', 'good', 'august', 'september', 'html', 'july', 'beta', 'document', 'eg', 'published', 'april'}
         stop_words = set(stopwords.words("english"))
 
         processed_words = []
-
         for word in vocabulary:
             # select only words shorter than 20 char
             if len(word) < 20:
@@ -42,7 +38,6 @@ class FeatureExtractor():
                             processed_words.append(word)
                     else:
                         processed_words.append(word)
-
         return processed_words
 
     def make_vocabulary(self, document=None):
@@ -52,7 +47,6 @@ class FeatureExtractor():
             vocabulary = self.tokenize()
 
         vocabulary = self.process(vocabulary)
-
         return vocabulary
 
     def bag_of_words(self, document):
@@ -65,8 +59,6 @@ class FeatureExtractor():
         return bag_of_words
 
     def freq_dist(self, vocabulary):
-        print("Vocabulary length:")
-        print(len(vocabulary))
         return nltk.FreqDist(vocabulary)
 
     def top_words(self, n_features, freq_dist):

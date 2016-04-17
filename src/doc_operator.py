@@ -1,3 +1,5 @@
+# Appendix C6 - doc_operator.py
+
 from .db_handler import DBHandler
 from .tables import Topic, Subtopic, Document
 from .feature_extractor import FeatureExtractor
@@ -8,8 +10,6 @@ class DocumentOperator():
         self.DBH = DBHandler(db_name=db_name, echo=False)
         self.topics = self.pick_random_topics(n, min_docs)
         self.max_docs = max_docs
-        print("Topics selected:")
-        print([topic.title for topic in self.topics])
         self.topic_labels = [topic.title for topic in self.topics]
         self.docs_with_labels = self.docs_with_labels()
         self.featuresets = []

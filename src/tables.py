@@ -1,3 +1,5 @@
+# Appendix C10 - tables.py
+
 from sqlalchemy import Table, Column, Integer, String, Text
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
@@ -30,7 +32,7 @@ class Topic(Base):
             doc_with_labels.append([doc, doc.topic_titles()])
         return doc_with_labels
 
-# create association table (subtopic-documents)
+# create association table SubtopicDcoument
 subtopics_documents = Table('subtopics_documents', Base.metadata,
     Column('subtopic_id', ForeignKey('subtopics.id'), primary_key=True),
     Column('document_id', ForeignKey('documents.id'), primary_key=True)

@@ -1,3 +1,5 @@
+# Appendix C7 - ovr_handler.py
+
 from nltk import compat
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.naive_bayes import BernoulliNB
@@ -56,9 +58,6 @@ class OvrHandler():
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             prob_pos = clf.predict_proba(X_test)[:, 1]
-            # The precision is the ratio tp / (tp + fp) where tp is the number of true positives and fp the number of false positives. The precision is intuitively the ability of the classifier not to label as positive a sample that is negative.
-            # The recall is the ratio tp / (tp + fn) where tp is the number of true positives and fn the number of false negatives. The recall is intuitively the ability of the classifier to find all the positive samples.
-            # The F-beta score can be interpreted as a weighted harmonic mean of the precision and recall, where an F-beta score reaches its best value at 1 and worst score at 0.
             precision = precision_score(y_test, y_pred, average='weighted')
             recall = recall_score(y_test, y_pred, average='weighted')
             f1 = f1_score(y_test, y_pred, average='weighted')
@@ -66,7 +65,8 @@ class OvrHandler():
             results[name] = {"precision": precision, "recall": recall, "f1": f1}
         return results
 
-
+    # Not used. For future implementation.
+    # Feed a document's bag of word to this method to obtain recommended classes
     def predict_for_random(self, doc_with_bag_of_words):
         doc, bag_of_words = doc_with_bag_of_words
         print("Predicting for:", doc.title)

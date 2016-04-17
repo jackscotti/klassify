@@ -1,13 +1,12 @@
+# Appendix C4 - content_importer.py
+
 from .db_handler import DBHandler
 from .tables import Document
 from bs4 import BeautifulSoup
 import requests
 import time
 
-# TODO:
-# To tune the features of the document:
-# - Each document has a description, should be added to the content. Maybe with a multiplier * 2-3
-# - Also topic and subtopic descriptions should be added to the content, also with a multiplier
+# Future implementation: Tuning features by adding Documents' to their content. Maybe with a multiplier.
 class ContentImporter(object):
     def __init__(self, db_name="klassify"):
         self.DBH = DBHandler(db_name, echo=False)
@@ -44,6 +43,8 @@ class ContentImporter(object):
     def extract_page_content(self, page):
         return page.text
 
+    # Iterate through each Document in the database, get their URL on the site and
+    # query it to obtain their HTML and eventually store it.
     def import_documents_html(self):
         documents = self.DBH.session.query(Document).all()
 
@@ -56,6 +57,7 @@ class ContentImporter(object):
             count += 1
             if count % 250 == 0: print("Documents processed: %d/%d" %(count, len(documents)))
 
+    # Iterate through the Documents' HTML, parse it and store it.
     def extract_documents_content(self):
         documents = self.DBH.session.query(Document).all()
 
@@ -79,8 +81,8 @@ class ContentImporter(object):
     def get_body(self, page):
         return page.body
 
+    # Discard anything inside footer, header and scripts
     def remove_unwanted_tags(self, page):
-        # Discard anything inside footer, script and header
         for tag in page.find_all(['footer', 'script', 'header']):
             tag.replace_with('')
 
@@ -92,9 +94,10 @@ class ContentImporter(object):
         return page
 
     def remove_punctuaction_and_numbers(self, page):
-        punctuation = ['\\', '>', '_', '`', '{', ']', '*', '[', '^', '+', '!', '(', ':', ';', "'", "’", '<', '|', '"', '?', '=', '}', '&', '/', '$', ')', '~', '#', '%', ',']
-
+        punctuation = [ '\\', '>', '_', '`', '{', ']', '*', '[',
+                        '^', '+', '!', '(', ':', ';', "'", "’",
+                        '<', '|', '"', '?', '=', '}', '&', '/',
+                        '$', ')', '~', '#', '%', ',' ]
         page = ''.join(ch for ch in page if ch not in punctuation)
         page = ''.join([i for i in page if not i.isdigit()])
-
         return page

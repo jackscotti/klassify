@@ -1,0 +1,23 @@
+{
+  base_path: "/topic",
+  content_id: ...,
+  title: "Topics",
+  links: {
+  children: [
+    {
+      title: "Working at sea",
+      base_path: "/topic/working-sea",
+      description: "List of information about Working at sea.",
+      api_url: "https://www.gov.uk/api/content/topic/working-sea",
+      web_url: "https://www.gov.uk/topic/working-sea",
+    },
+    {
+      title: "Visas and immigration operational guidance",
+      base_path: "/topic/immigration-operational-guidance",
+      description: "List of information about Visas and immigration",
+      api_url: "https://www.gov.uk/api/content/topic/immigration",
+      web_url: "https://www.gov.uk/topic/immigration",
+    },
+    >>>> more results, omitted to fit in a page <<<<
+  ]
+}
