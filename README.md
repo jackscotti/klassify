@@ -1,6 +1,9 @@
-# klassify
+# Implementation of a Multi-Label Intelligent Agent: Classifying GOV.UK Content
 
-An intelligent system with the aim to classify documents.
+By Jacopo Scotti.
+
+BSc Information Systems and Management Project Report,
+Birkbeck College, University of London, 2016.
 
 ## Training data / Labeled data:
 
@@ -26,17 +29,6 @@ https://www.gov.uk/topic
 ## Database Entities
 
 ![Data Model](/doc/img/data-model.png "Data Model")
-
-## Sequence diagrams
-### setup.py
-
-![setup.py](/doc/img/uml_setup.png "setup.py")
-
-## Relationships
-
-- Topic has many Subtopics
-- Subtopic has many Documents
-- Document has many Subtopics
 
 # Project setup:
 
