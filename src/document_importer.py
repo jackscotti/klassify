@@ -43,7 +43,11 @@ class DocumentImporter(object):
     def make_document(self, document_data):
         link = document_data["link"]
         title = document_data["title"]
-        description = document_data["description"]
+        if "description" not in document_data:
+            description = ""
+        else:
+            description = document_data["description"]
+
         doc = Document(
             web_url="https://www.gov.uk" + link,
             description=description,
